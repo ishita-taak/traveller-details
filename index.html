@@ -1173,6 +1173,11 @@
         color: var(--color-text-hint);
       }
 
+      input.ff-float__input[name="first"],
+      input.ff-float__input[name="last"] {
+        text-transform: uppercase;
+      }
+
       .ff-inline-edit-search {
         margin-left: var(--space-1);
         padding: 0;
@@ -1748,7 +1753,7 @@
               <div class="ff-float">
                 <label class="ff-float__label" for="t1-first">First name</label>
                 <div class="ff-float__inner">
-                  <input class="ff-float__input" id="t1-first" name="first" type="text" autocomplete="given-name" />
+                  <input class="ff-float__input" id="t1-first" name="first" type="text" autocomplete="given-name" autocapitalize="characters" />
                 </div>
               </div>
               <p class="ds-hint">Use the spelling as on your travel document</p>
@@ -1758,7 +1763,7 @@
               <div class="ff-float">
                 <label class="ff-float__label" for="t1-last">Last name</label>
                 <div class="ff-float__inner">
-                  <input class="ff-float__input" id="t1-last" name="last" type="text" autocomplete="family-name" />
+                  <input class="ff-float__input" id="t1-last" name="last" type="text" autocomplete="family-name" autocapitalize="characters" />
                 </div>
               </div>
               <p class="ds-hint">Use the spelling as on your travel document</p>
@@ -2268,8 +2273,8 @@
         let activeIndex = 0;
         const DUMMY_TRAVELLER_PROFILES = {
           "profile-1": {
-            first: "Aarav",
-            last: "Sharma",
+            first: "AARAV",
+            last: "SHARMA",
             gender: "male",
             dob: "14/06/1994",
             doc: "P1234567",
@@ -2280,8 +2285,8 @@
             ffNumber: "FF90871",
           },
           "profile-2": {
-            first: "Ishita",
-            last: "Taak",
+            first: "ISHITA",
+            last: "TAAK",
             gender: "female",
             dob: "24/08/1999",
             doc: "T7654321",
@@ -2292,8 +2297,8 @@
             ffNumber: "AI44120",
           },
           "profile-3": {
-            first: "Meera",
-            last: "Nair",
+            first: "MEERA",
+            last: "NAIR",
             gender: "female",
             dob: "03/11/2001",
             doc: "N3456789",
@@ -2465,11 +2470,11 @@
 
         const NAME_MAX_COMBINED = 40;
         const nameMinLenErr = "Name must be at least 2 characters";
-        const nameCharsetErr = "Use only letters from your passport (A–Z, no special characters)";
+        const nameCharsetErr = "Use only letters and spaces (A–Z, no special characters)";
         const nameFullLenErr =
           "Enter as much of the name as fits. Airlines will automatically truncate the rest.";
-        /** Latin letters; word parts may be joined by space, hyphen, or apostrophe (e.g. O'Brien, Mary-Jane). */
-        const namePartRe = /^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/;
+        /** Latin letters only; words may be separated by single spaces. */
+        const namePartRe = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
 
         function combinedFullName(firstVal, lastVal) {
           const a = (firstVal || "").trim();
@@ -2885,7 +2890,7 @@
               "First name",
               '<input class="ff-float__input" id="' +
                 prefix +
-                '-first" name="first" type="text" autocomplete="given-name" />'
+                '-first" name="first" type="text" autocomplete="given-name" autocapitalize="characters" />'
             ) +
             '<p class="ds-hint">Use the spelling as on your travel document</p>' +
             '<div class="ds-field-error ff-error" id="' +
@@ -2897,7 +2902,7 @@
               "Last name",
               '<input class="ff-float__input" id="' +
                 prefix +
-                '-last" name="last" type="text" autocomplete="family-name" />'
+                '-last" name="last" type="text" autocomplete="family-name" autocapitalize="characters" />'
             ) +
             '<p class="ds-hint">Use the spelling as on your travel document</p>' +
             '<div class="ds-field-error ff-error" id="' +
@@ -3140,10 +3145,42 @@
             ffAirline: { touched: false, dirty: false },
             ffNumber: { touched: false, dirty: false },
           };
+          let suppressInteractionTracking = false;
 
           function clearFrequentFlyerErrors() {
             hideError(err.ffAirline);
             hideError(err.ffNumber);
+            setShellError(ffAirline, false);
+            setShellError(ffNumber, false);
+          }
+
+          function resetInteractionStateForProfileSwitch() {
+            fieldState.first.touched = fieldState.first.dirty = false;
+            fieldState.last.touched = fieldState.last.dirty = false;
+            fieldState.gender.touched = fieldState.gender.dirty = false;
+            fieldState.dob.touched = fieldState.dob.dirty = false;
+            fieldState.doc.touched = fieldState.doc.dirty = false;
+            fieldState.exp.touched = fieldState.exp.dirty = false;
+            fieldState.ffAirline.touched = fieldState.ffAirline.dirty = false;
+            fieldState.ffNumber.touched = fieldState.ffNumber.dirty = false;
+            delete dob.dataset.dirty;
+            delete dob.dataset.touched;
+            delete exp.dataset.dirty;
+            delete exp.dataset.touched;
+            hideError(err.first);
+            hideError(err.last);
+            hideError(err.gender);
+            hideError(err.dob);
+            hideError(err.doc);
+            hideError(err.exp);
+            hideError(err.ffAirline);
+            hideError(err.ffNumber);
+            setShellError(first, false);
+            setShellError(last, false);
+            setShellError(genderSelect, false);
+            setShellError(dob, false);
+            setShellError(doc, false);
+            setShellError(exp, false);
             setShellError(ffAirline, false);
             setShellError(ffNumber, false);
           }
@@ -3163,6 +3200,7 @@
 
           if (ffAirline) {
             ffAirline.addEventListener("change", function () {
+              if (suppressInteractionTracking) return;
               fieldState.ffAirline.dirty = true;
               if (!ffAdd || !ffAdd.checked) return;
               const hasValue = !!String(ffAirline.value || "").trim();
@@ -3175,6 +3213,7 @@
 
           if (ffNumber) {
             ffNumber.addEventListener("input", function () {
+              if (suppressInteractionTracking) return;
               fieldState.ffNumber.dirty = true;
               if (!ffAdd || !ffAdd.checked) return;
               const hasValue = !!String(ffNumber.value || "").trim();
@@ -3222,6 +3261,7 @@
             profileSelect.addEventListener("change", function () {
               const selectedValue = String(profileSelect.value || "");
               const selected = DUMMY_TRAVELLER_PROFILES[selectedValue];
+              suppressInteractionTracking = true;
               if (selectedValue === "new") {
                 if (first) {
                   first.value = "";
@@ -3264,9 +3304,14 @@
                   ffNumber.value = "";
                   ffNumber.dispatchEvent(new Event("input"));
                 }
+                resetInteractionStateForProfileSwitch();
+                suppressInteractionTracking = false;
                 return;
               }
-              if (!selected) return;
+              if (!selected) {
+                suppressInteractionTracking = false;
+                return;
+              }
               if (first) {
                 first.value = selected.first || "";
                 first.dispatchEvent(new Event("input"));
@@ -3312,6 +3357,8 @@
                 ffNumber.value = hasFrequentFlierData ? selected.ffNumber || "" : "";
                 ffNumber.dispatchEvent(new Event("input"));
               }
+              resetInteractionStateForProfileSwitch();
+              suppressInteractionTracking = false;
             });
             profileSelect.addEventListener("change", syncProfileVisibility);
           }
@@ -3319,6 +3366,7 @@
 
           if (genderSelect) {
             genderSelect.addEventListener("change", function () {
+              if (suppressInteractionTracking) return;
               fieldState.gender.dirty = true;
               if (errorIsVisible(err.gender)) {
                 const msg = validateGender(genderSelect);
@@ -3386,11 +3434,12 @@
             return false;
           }
 
-          /** Airlines-style names: force uppercase as the user types or leaves the field. */
+          /** Airlines-style names: letters/spaces only, always rendered uppercase. */
           function applyNameUppercase(input) {
             if (!input) return;
-            const v = input.value;
-            const upper = v.toUpperCase();
+            const v = String(input.value || "");
+            const sanitized = v.replace(/[^A-Za-z ]+/g, "").replace(/\s{2,}/g, " ");
+            const upper = sanitized.toUpperCase();
             if (v === upper) return;
             const start = input.selectionStart;
             const end = input.selectionEnd;
@@ -3421,6 +3470,7 @@
           }
 
           first.addEventListener("input", function () {
+            if (suppressInteractionTracking) return;
             applyNameUppercase(first);
             fieldState.first.dirty = true;
             const fv = (first.value || "").trim();
@@ -3448,6 +3498,7 @@
           });
 
           last.addEventListener("input", function () {
+            if (suppressInteractionTracking) return;
             applyNameUppercase(last);
             fieldState.last.dirty = true;
             const lv = (last.value || "").trim();
@@ -3475,6 +3526,7 @@
           });
 
           dob.addEventListener("input", function () {
+            if (suppressInteractionTracking) return;
             fieldState.dob.dirty = true;
             dob.dataset.dirty = "true";
             if (!errorIsVisible(err.dob)) return;
@@ -3494,6 +3546,7 @@
           });
 
           doc.addEventListener("input", function () {
+            if (suppressInteractionTracking) return;
             fieldState.doc.dirty = true;
             if (!errorIsVisible(err.doc)) return;
             const msg = validateDoc(doc.value);
@@ -3513,6 +3566,7 @@
           });
 
           exp.addEventListener("input", function () {
+            if (suppressInteractionTracking) return;
             fieldState.exp.dirty = true;
             exp.dataset.dirty = "true";
             if (!errorIsVisible(err.exp)) return;
