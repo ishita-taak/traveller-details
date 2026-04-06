@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fly Fairly — Design system preview</title>
+    <link rel="stylesheet" href="design-system.css" />
+    <style>
+      .preview-wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: var(--space-5) var(--space-4) calc(var(--space-7) + 80px);
+      }
+      .preview-section {
+        margin-bottom: var(--space-6);
+      }
+      .preview-section h2 {
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        margin: 0 0 var(--space-4);
+      }
+      .preview-section h3 {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--color-text-secondary);
+        margin: var(--space-5) 0 var(--space-3);
+      }
+      .preview-section h3:first-child {
+        margin-top: 0;
+      }
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+      }
+      .swatch {
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid var(--color-border-default);
+      }
+      .swatch__chip {
+        height: 48px;
+      }
+      .swatch__meta {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+        background: var(--color-surface);
+      }
+      .swatch__name {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+      }
+      .swatch__hex {
+        color: var(--color-text-secondary);
+        font-family: ui-monospace, monospace;
+      }
+      .type-sample {
+        margin-bottom: var(--space-3);
+      }
+      .type-sample .label {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-hint);
+        margin-bottom: var(--space-1);
+      }
+      .spacing-demo {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: var(--space-3);
+      }
+      .spacing-demo__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-1);
+      }
+      .spacing-demo__box {
+        background: var(--color-primary);
+        opacity: 0.85;
+        border-radius: 2px;
+      }
+      .spacing-demo__label {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary);
+        font-family: ui-monospace, monospace;
+      }
+      .radius-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        align-items: flex-end;
+      }
+      .radius-item {
+        text-align: center;
+      }
+      .radius-item__box {
+        width: 56px;
+        height: 40px;
+        background: var(--color-border-default);
+        border: 2px solid var(--color-text-hint);
+        margin-bottom: var(--space-2);
+      }
+      .radius-item span {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary);
+      }
+      .token-list {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+        line-height: var(--line-height-body);
+        margin: 0;
+        padding-left: var(--space-4);
+      }
+      .token-list code {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary);
+      }
+      .demo-card {
+        margin-top: var(--space-4);
+      }
+      .fixed-demo-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        box-shadow: 0 -4px 24px rgba(17, 24, 39, 0.08);
+      }
+    </style>
+  </head>
+  <body class="ds-base">
+    <div class="preview-wrap">
+      <h1 class="ds-heading" style="font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); margin: 0 0 var(--space-2)">
+        Fly Fairly
+      </h1>
+      <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 var(--space-6)">
+        Design system preview — tokens & components
+      </p>
+
+      <section class="preview-section ds-surface-card">
+        <h2 class="ds-heading">Colours</h2>
+
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-primary)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Primary</div>
+              <div class="swatch__hex">#3B39D9</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-primary-dark)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Primary dark</div>
+              <div class="swatch__hex">#2725BF</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-success)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Success</div>
+              <div class="swatch__hex">#0E9F6E</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-error)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Error</div>
+              <div class="swatch__hex">#E02424</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-warning)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Warning</div>
+              <div class="swatch__hex">#FF8A4C</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-text-primary)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Text primary</div>
+              <div class="swatch__hex">#111827</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-text-secondary)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Text secondary</div>
+              <div class="swatch__hex">#6B7280</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-text-hint)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Text hint</div>
+              <div class="swatch__hex">#9CA3AF</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-background); border-bottom: 1px solid var(--color-border-default)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Background</div>
+              <div class="swatch__hex">#F9FAFB</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-surface); border-bottom: 1px solid var(--color-border-default)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Surface</div>
+              <div class="swatch__hex">#FFFFFF</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-border-default)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Border default</div>
+              <div class="swatch__hex">#E5E7EB</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: var(--color-border-focus)"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">Border focus</div>
+              <div class="swatch__hex">#1A56DB</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-section ds-surface-card">
+        <h2 class="ds-heading">Typography</h2>
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: 0">
+          Font: <strong style="font-weight: var(--font-weight-medium); color: var(--color-text-primary)">Poppins</strong>
+          — weights 400 / 500 / 600 · body line-height 1.5 · headings 1.3
+        </p>
+
+        <div class="type-sample">
+          <div class="label">12px · regular</div>
+          <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-regular)">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div class="type-sample">
+          <div class="label">14px · medium</div>
+          <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium)">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div class="type-sample">
+          <div class="label">16px · regular (body)</div>
+          <div style="font-size: var(--font-size-base); font-weight: var(--font-weight-regular)">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div class="type-sample">
+          <div class="label">18px · semibold</div>
+          <div class="ds-heading" style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold)">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div class="type-sample">
+          <div class="label">24px · semibold (heading scale)</div>
+          <div class="ds-heading" style="font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold)">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+      </section>
+
+      <section class="preview-section ds-surface-card">
+        <h2 class="ds-heading">Spacing</h2>
+        <div class="spacing-demo">
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-1); height: var(--space-1)"></div>
+            <span class="spacing-demo__label">4px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-2); height: var(--space-2)"></div>
+            <span class="spacing-demo__label">8px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-3); height: var(--space-3)"></div>
+            <span class="spacing-demo__label">12px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-4); height: var(--space-4)"></div>
+            <span class="spacing-demo__label">16px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-5); height: var(--space-5)"></div>
+            <span class="spacing-demo__label">24px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-6); height: var(--space-6)"></div>
+            <span class="spacing-demo__label">32px</span>
+          </div>
+          <div class="spacing-demo__item">
+            <div class="spacing-demo__box" style="width: var(--space-7); height: var(--space-7)"></div>
+            <span class="spacing-demo__label">48px</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-section ds-surface-card">
+        <h2 class="ds-heading">Border radius</h2>
+        <div class="radius-row">
+          <div class="radius-item">
+            <div class="radius-item__box" style="border-radius: var(--radius-sm)"></div>
+            <span>Small 6px</span>
+          </div>
+          <div class="radius-item">
+            <div class="radius-item__box" style="border-radius: var(--radius-md)"></div>
+            <span>Medium 10px</span>
+          </div>
+          <div class="radius-item">
+            <div class="radius-item__box" style="border-radius: var(--radius-lg)"></div>
+            <span>Large 16px</span>
+          </div>
+          <div class="radius-item">
+            <div class="radius-item__box" style="border-radius: var(--radius-full); width: 64px"></div>
+            <span>Full pill</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-section ds-surface-card">
+        <h2 class="ds-heading">Component tokens</h2>
+        <ul class="token-list">
+          <li>Input height 44px · padding 12px 16px</li>
+          <li>Input border 1.5px default / focus / error</li>
+          <li>Label 14px / 500 / text-primary · Hint &amp; error 12px</li>
+          <li>Button 44px tall (padding <code>0 16px</code>) · radius medium · primary filled semibold</li>
+          <li>Sticky bar: white, 1px top border, 16px padding</li>
+        </ul>
+
+        <h3>Form field</h3>
+        <label class="ds-label" for="demo-name">Given names (as on passport)</label>
+        <input class="ds-input" id="demo-name" type="text" placeholder="e.g. Jane Marie" autocomplete="given-name" />
+        <p class="ds-hint">Use the exact spelling from your travel document.</p>
+
+        <h3>Error state</h3>
+        <label class="ds-label" for="demo-email">Email</label>
+        <input class="ds-input is-error" id="demo-email" type="email" value="not-an-email" autocomplete="email" />
+        <p class="ds-field-error">Enter a valid email address.</p>
+
+        <h3>Primary button</h3>
+        <button type="button" class="ds-btn-primary">Continue to payment</button>
+
+        <h3>Sticky bottom bar</h3>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-3)">
+          Fixed to viewport bottom on this page for demo; price left, CTA right.
+        </p>
+      </section>
+    </div>
+
+    <div class="ds-sticky-bar fixed-demo-bar" role="region" aria-label="Booking summary">
+      <div class="ds-sticky-bar__price">AUD 1,248.90</div>
+      <div class="ds-sticky-bar__cta">
+        <button type="button" class="ds-btn-primary">Continue</button>
+      </div>
+    </div>
+  </body>
+</html>
