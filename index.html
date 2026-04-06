@@ -1,0 +1,3826 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Traveller details — Fly Fairly</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="design-system.css" />
+    <style>
+      :root {
+        --color-text-secondary: #515866;
+        --ff-link-hover: #252bb0;
+        --ff-badge-bg: rgba(59, 57, 217, 0.1);
+        --ff-card-radius: 12px;
+        --ff-card-shadow: 0 4px 24px rgba(17, 24, 39, 0.06), 0 1px 3px rgba(17, 24, 39, 0.04);
+        --ff-page-max: 393px;
+      }
+
+      .traveller-page {
+        margin: 0;
+        font-family: var(--font-family);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--line-height-body);
+        color: var(--color-text-primary);
+        background: var(--color-background);
+        -webkit-font-smoothing: antialiased;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .traveller-page * {
+        font-family: inherit;
+      }
+
+      .wrap {
+        max-width: var(--ff-page-max);
+        margin: 0 auto;
+        min-height: 100vh;
+      }
+
+      /* ——— Nav ——— */
+      .ff-nav {
+        position: relative;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-4);
+        padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+        background: var(--color-nav-top);
+      }
+
+      .ff-logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #fff;
+      }
+
+      .ff-logo__img {
+        display: block;
+        height: 32px;
+        width: auto;
+        flex-shrink: 0;
+      }
+
+      .ff-nav__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+
+      .ff-nav__icon {
+        width: 24px;
+        height: 24px;
+        color: #fff;
+        opacity: 0.95;
+      }
+
+      .ff-nav__lang-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: block;
+        color: #fff;
+        opacity: 0.95;
+      }
+
+      .ff-nav__avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+        border: 2px solid var(--color-surface);
+      }
+
+      /* ——— Flow stepper (nav → flight) ——— */
+      .ff-flow-stepper-wrap {
+        position: relative;
+        z-index: 110;
+        margin-bottom: var(--space-3);
+        padding: 0 var(--space-6);
+        background: linear-gradient(to bottom, #10141B 50%, transparent 50%);
+      }
+
+      .ff-flow-stepper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        width: 100%;
+      }
+
+      .ff-flow-stepper__node {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .ff-flow-stepper__icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: block;
+      }
+
+      .ff-flow-stepper__node > .material-icons {
+        font-family: "Material Icons";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .ff-flow-stepper__node--done > .material-icons,
+      .ff-flow-stepper__node--current > .material-icons {
+        color: #ffffff;
+      }
+
+      .ff-flow-stepper__node--done,
+      .ff-flow-stepper__node--current {
+        background: var(--color-primary);
+        color: var(--button-primary-color);
+        border: 1px solid #ffffff;
+      }
+
+      .ff-flow-stepper__node--current {
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-surface) 50%, transparent);
+      }
+
+      .ff-flow-stepper__node--upcoming {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border-default);
+        color: var(--color-text-hint);
+      }
+
+      .ff-flow-stepper__node--upcoming > .material-icons {
+        color: var(--color-text-hint);
+      }
+
+      .ff-flow-stepper__line {
+        height: 2px;
+        flex: 0 0 60px;
+        width: 60px;
+      }
+
+      .ff-flow-stepper__line--done {
+        background: var(--color-primary);
+      }
+
+      .ff-flow-stepper__line--todo {
+        background: var(--color-border-default);
+      }
+
+      .ff-flight-body {
+        padding: var(--space-4);
+      }
+
+      /* ——— Cards ——— */
+      .ff-card {
+        background: var(--color-surface);
+        border-radius: var(--ff-card-radius);
+        box-shadow: var(--ff-card-shadow);
+        padding: var(--space-4);
+        margin: 0 var(--space-4) var(--space-3);
+        border: 1px solid rgba(229, 231, 235, 0.8);
+      }
+
+      .ff-card.ff-card--flight {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .ff-card__title {
+        margin: 0 0 var(--space-4);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+      }
+
+      /* Flight card — date row, route, times, airline + fare rules */
+      .ff-flight-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      .ff-flight-date {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+        white-space: nowrap;
+      }
+
+      .ff-flight-info {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 28px;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: var(--radius-full);
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.15s ease;
+      }
+
+      .ff-flight-info:hover .ff-flight-info__label,
+      .ff-flight-info:focus-visible .ff-flight-info__label,
+      .ff-flight-info:hover .ff-flight-info__icon,
+      .ff-flight-info:focus-visible .ff-flight-info__icon {
+        color: var(--ff-link-hover);
+      }
+
+      .ff-flight-info:hover,
+      .ff-flight-info:focus-visible {
+        outline: none;
+      }
+
+      .ff-flight-info:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+      }
+
+      .ff-flight-info__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--color-text-secondary);
+        transition: color 0.15s ease;
+      }
+
+      .ff-flight-info__label {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.2;
+        color: var(--color-primary);
+        transition: color 0.15s ease;
+      }
+
+      .ff-flight-route {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin-bottom: var(--space-2);
+      }
+
+      .ff-flight-route__icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: block;
+        color: var(--color-text-primary);
+      }
+
+      .ff-flight-route__text {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .ff-flight-meta {
+        margin: 0 0 var(--space-4);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-body);
+      }
+
+      .ff-flight-meta__time {
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+      }
+
+      .ff-flight-meta__sep {
+        color: var(--color-text-secondary);
+        font-weight: var(--font-weight-regular);
+      }
+
+      .ff-flight-meta__dur {
+        color: #707b8d;
+        font-weight: var(--font-weight-medium);
+      }
+
+      .ff-flight-meta__dot {
+        color: #707b8d;
+      }
+
+      .ff-flight-meta__stops {
+        color: var(--color-success);
+        font-weight: var(--font-weight-medium);
+      }
+
+      .ff-flight-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+      }
+
+      .ff-airline {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-width: 0;
+      }
+
+      .ff-airline__logo {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--color-border-default);
+        box-sizing: border-box;
+      }
+
+      .ff-airline__name {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+        line-height: 1.35;
+      }
+
+      .ff-flight-fare-rules {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.15s ease;
+      }
+
+      .ff-flight-fare-rules:hover,
+      .ff-flight-fare-rules:focus-visible {
+        color: var(--ff-link-hover);
+        text-decoration: none;
+        outline: none;
+      }
+
+      .ff-flight-fare-rules:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+      }
+
+      .ff-flight-fare-rules__chev {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--color-text-secondary);
+        transition: color 0.15s ease;
+      }
+
+      .ff-flight-fare-rules:hover .ff-flight-fare-rules__chev,
+      .ff-flight-fare-rules:focus-visible .ff-flight-fare-rules__chev {
+        color: var(--ff-link-hover);
+      }
+
+      /* Flight details bottom sheet */
+      .ff-sheet {
+        position: fixed;
+        inset: 0;
+        z-index: 220;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        pointer-events: none;
+        visibility: hidden;
+        transition: visibility 0.25s;
+      }
+
+      .ff-sheet.is-open {
+        pointer-events: auto;
+        visibility: visible;
+      }
+
+      .ff-sheet__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .ff-sheet.is-open .ff-sheet__backdrop {
+        opacity: 1;
+      }
+
+      .ff-sheet__panel {
+        position: relative;
+        width: 100%;
+        max-width: var(--ff-page-max);
+        max-height: min(92vh, 780px);
+        background: var(--color-surface);
+        border-radius: var(--ff-card-radius) var(--ff-card-radius) 0 0;
+        box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.12);
+        transform: translateY(100%);
+        transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+        display: flex;
+        flex-direction: column;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .ff-sheet.is-open .ff-sheet__panel {
+        transform: translateY(0);
+      }
+
+      .ff-sheet__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-4) var(--space-3);
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--color-border-default);
+      }
+
+      .ff-sheet__title {
+        margin: 0;
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .ff-sheet__close {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        margin: -8px -8px -8px 0;
+        padding: 0;
+        border: none;
+        border-radius: var(--radius-full);
+        background: transparent;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .ff-sheet__close:hover,
+      .ff-sheet__close:focus-visible {
+        color: var(--color-text-primary);
+        background: var(--color-background);
+        outline: none;
+      }
+
+      .ff-sheet__close svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .ff-sheet__scroll {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 20px;
+      }
+
+      .ff-sheet__lead {
+        margin: 0 0 var(--space-4);
+        line-height: 1.35;
+      }
+
+      .ff-sheet__lead-row1 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: 15px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+      }
+
+      .ff-sheet__lead-row1 .ff-flight-route__icon {
+        flex-shrink: 0;
+      }
+
+      .ff-sheet__lead-row2 {
+        margin: 6px 0 0;
+        padding-left: calc(20px + var(--space-2));
+        font-size: 13px;
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-secondary);
+      }
+
+      /* Flight leg timeline (flight details modal only) */
+      .ff-itin-flightline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--color-text-secondary);
+      }
+
+      .ff-itin-logo-badge {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        font-size: 5px;
+        font-weight: var(--font-weight-semibold);
+        line-height: 1;
+        letter-spacing: -0.06em;
+        color: var(--color-text-secondary);
+        background: rgba(148, 163, 184, 0.25);
+        overflow: hidden;
+      }
+
+      /* 3 columns: rail 24px | times + duration (1fr) | destination + airport */
+      .ff-itin-leg {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: var(--space-5);
+      }
+
+      .ff-itin-rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        width: 24px;
+        min-width: 24px;
+        align-self: stretch;
+      }
+
+      .ff-itin-dot {
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .ff-itin-dot--dep {
+        background: #60a5fa;
+      }
+
+      .ff-itin-dot--arr {
+        background: #6b7280;
+      }
+
+      .ff-itin-vline {
+        flex: 1;
+        width: 0;
+        min-height: 60px;
+        align-self: center;
+        box-sizing: border-box;
+        border-left: 2px dashed #d1d5db;
+      }
+
+      .ff-itin-leg__grid {
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        grid-template-rows: auto 1fr auto;
+        column-gap: var(--space-2);
+        row-gap: 0;
+        align-items: start;
+      }
+
+      .ff-itin-stop-times--dep {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .ff-itin-stop-place--dep {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      /* Top of departure copy aligns with bottom edge of 8px departure dot */
+      .ff-itin-stop-times--dep,
+      .ff-itin-stop-place--dep {
+        padding-top: 8px;
+        align-self: start;
+      }
+
+      .ff-itin-dur {
+        grid-column: 1;
+        grid-row: 2;
+        align-self: center;
+        justify-self: start;
+        margin: 0;
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: 1.25;
+        color: #6b7280;
+        text-align: left;
+      }
+
+      .ff-itin-leg__grid-spacer {
+        grid-column: 2;
+        grid-row: 2;
+        min-height: 0;
+      }
+
+      .ff-itin-stop-times--arr {
+        grid-column: 1;
+        grid-row: 3;
+      }
+
+      .ff-itin-stop-place--arr {
+        grid-column: 2;
+        grid-row: 3;
+      }
+
+      .ff-itin-stop-times {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        width: max-content;
+        max-width: 100%;
+      }
+
+      .ff-itin-stop-times .ff-itin-stop__time,
+      .ff-itin-stop-times .ff-itin-stop__date {
+        display: block;
+      }
+
+      .ff-itin-stop__time {
+        font-size: 14px;
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.25;
+        color: var(--color-text-primary);
+      }
+
+      .ff-itin-stop__date {
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: 1.25;
+        color: var(--color-text-secondary);
+      }
+
+      .ff-itin-stop-place {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .ff-itin-stop__dest {
+        display: block;
+        font-size: 14px;
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.25;
+        color: var(--color-text-primary);
+      }
+
+      .ff-itin-stop__air {
+        display: block;
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: 1.35;
+        color: var(--color-text-primary);
+      }
+
+      .ff-itin-layover {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin: var(--space-3) 0;
+        padding-left: calc(24px + 12px);
+        box-sizing: border-box;
+      }
+
+      .ff-itin-layover__dur {
+        font-size: 16px;
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.25;
+        color: var(--color-text-primary);
+        flex-shrink: 0;
+      }
+
+      .ff-itin-layover .ff-badge {
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: 1.35;
+        color: var(--color-text-secondary);
+        background: rgba(148, 163, 184, 0.14);
+      }
+
+      .ff-sheet__footer {
+        flex-shrink: 0;
+        padding: var(--space-3) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+        text-align: right;
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+        border-top: 1px solid var(--color-border-default);
+        background: var(--color-surface);
+      }
+
+      .ff-sheet__footer strong {
+        color: var(--color-text-primary);
+        font-weight: var(--font-weight-semibold);
+      }
+
+      body.ff-sheet-open {
+        overflow: hidden;
+      }
+
+      .ff-hint--blue {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-2);
+        margin-top: var(--space-2);
+        font-size: var(--font-size-xs);
+        color: var(--hint-color);
+        line-height: var(--line-height-body);
+      }
+
+      .ff-hint--blue > :first-child {
+        flex-shrink: 0;
+      }
+
+      .ff-hint--blue__icon {
+        width: 14px;
+        height: 14px;
+        margin-top: 2px;
+      }
+
+      /* Traveller cards */
+      .ff-traveller {
+        margin-bottom: var(--space-3);
+      }
+
+      .ff-traveller:not(.is-collapsed) {
+        padding-bottom: var(--space-2);
+      }
+
+      #traveller-card-1.ff-traveller:not(.is-collapsed) {
+        padding-bottom: 0;
+      }
+
+      .ff-traveller:last-child {
+        margin-bottom: 0;
+      }
+
+      .ff-traveller__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+      }
+
+      .ff-traveller__head--with-guide {
+        margin-bottom: 0;
+      }
+
+      .ff-traveller__head-tags {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+      }
+
+      .ff-traveller__head-meta {
+        flex-shrink: 0;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--line-height-body);
+        color: var(--color-text-hint);
+      }
+
+      /* Saved + collapsed: summary row already has name + Adult/Child pill — hide header duplicate */
+      .ff-traveller.is-traveller-saved.is-collapsed .ff-traveller__head {
+        display: none;
+      }
+
+      .ff-traveller__title {
+        margin: 0;
+        min-width: 0;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-heading);
+        color: var(--color-text-primary);
+      }
+
+      .ff-naming-guide-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 var(--space-5);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-text-secondary);
+        font-size: 12px;
+        font-weight: var(--font-weight-medium);
+        line-height: 1.4;
+        cursor: pointer;
+      }
+
+      .ff-naming-guide-btn:hover {
+        color: var(--color-text-primary);
+      }
+
+      .ff-naming-guide-btn__icon {
+        width: 16px;
+        height: 16px;
+        flex: 0 0 16px;
+      }
+
+      .ff-traveller.is-traveller-saved.is-collapsed .ff-naming-guide-btn {
+        display: none;
+      }
+
+      .ff-traveller.is-collapsed .ff-naming-guide-btn {
+        display: none;
+      }
+
+      .ff-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px var(--space-2);
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-primary);
+        background: var(--ff-badge-bg);
+      }
+
+      .ff-traveller__collapsed {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+
+      .ff-traveller-summary {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+
+      .ff-traveller-summary__row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-3);
+        min-width: 0;
+      }
+
+      .ff-traveller-summary__row--head {
+        align-items: center;
+      }
+
+      .ff-traveller-summary__tags {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+      }
+
+      .ff-traveller-summary__age {
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: var(--font-weight-medium);
+        line-height: var(--line-height-body);
+        color: var(--color-text-hint);
+      }
+
+      .ff-traveller-summary__status-tick {
+        display: none;
+        width: 18px;
+        height: 18px;
+        color: #16a34a;
+        flex: 0 0 18px;
+      }
+
+      .ff-traveller-summary__name {
+        margin: 0;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-heading);
+        color: var(--color-text-primary);
+        text-transform: uppercase;
+        min-width: 0;
+      }
+
+      .ff-traveller-summary__pill {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: 2px var(--space-2);
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--line-height-body);
+        color: #3239cd;
+        background: #e8eaf6;
+      }
+
+      .ff-traveller-summary__meta {
+        margin: 0;
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: var(--line-height-body);
+        color: var(--color-text-primary);
+        background: transparent;
+      }
+
+      .ff-traveller-summary__meta:empty {
+        display: none;
+      }
+
+      .ff-traveller-summary__doc-label {
+        display: none;
+      }
+
+      .ff-traveller-summary__doc {
+        margin: 0;
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: var(--line-height-body);
+        color: var(--color-text-primary);
+        min-width: 0;
+        flex: 1;
+      }
+
+      .ff-traveller-summary__doc:empty {
+        display: none;
+      }
+
+      .ff-traveller-summary__row--doc .ff-add-details {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0;
+        min-height: auto;
+        align-self: flex-start;
+      }
+
+      .ff-add-details__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--color-text-secondary);
+        transition: color 0.15s ease;
+      }
+
+      .ff-traveller-summary__row--doc {
+        margin-top: 0;
+      }
+
+      .ff-traveller-summary__row--ff {
+        margin-top: var(--space-1);
+      }
+
+      .ff-traveller-summary__row--ff .ff-add-details {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0;
+        min-height: auto;
+        align-self: flex-start;
+        display: none;
+      }
+
+      .ff-traveller-summary__ff {
+        margin: 0;
+        font-size: 12px;
+        font-weight: var(--font-weight-regular);
+        line-height: var(--line-height-body);
+        color: var(--color-text-primary);
+      }
+
+      .ff-traveller-summary__ff:empty {
+        display: none;
+      }
+
+      .ff-traveller-summary__row--ff:has([data-summary-ff]:empty) {
+        display: none;
+      }
+
+      .ff-traveller-summary:has([data-summary-ff]:not(:empty)) .ff-traveller-summary__row--doc .ff-add-details {
+        display: none;
+      }
+
+      .ff-traveller-summary:has([data-summary-ff]:not(:empty)) .ff-traveller-summary__row--ff .ff-add-details {
+        display: inline-flex;
+      }
+
+      .ff-traveller.is-collapsed .ff-traveller__collapsed--pending {
+        display: none !important;
+      }
+
+      .ff-traveller.is-collapsed .ff-traveller__collapsed:not(.ff-traveller__collapsed--pending) {
+        display: flex;
+      }
+
+      .ff-traveller.is-traveller-saved.is-collapsed .ff-traveller-summary__age {
+        display: none;
+      }
+
+      .ff-traveller.is-traveller-saved.is-collapsed .ff-traveller-summary__status-tick {
+        display: inline-flex;
+      }
+
+      .ff-traveller.is-collapsed .ff-traveller__expanded {
+        display: none;
+      }
+
+      .ff-traveller.is-collapsed .ff-traveller__head {
+        margin-bottom: var(--space-3);
+      }
+
+      /* Pending collapsed cards only show the head row; drop head margin so it isn’t empty space below the title. */
+      .ff-traveller.is-collapsed:has(.ff-traveller__collapsed--pending) .ff-traveller__head {
+        margin-bottom: 0;
+      }
+
+      .ff-traveller__placeholder {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-hint);
+      }
+
+      .ff-add-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        padding: var(--space-2);
+        margin: calc(var(--space-2) * -1);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+        cursor: pointer;
+        min-height: 44px;
+        border-radius: var(--radius-sm);
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.15s ease;
+      }
+
+      .ff-add-details:hover,
+      .ff-add-details:focus-visible {
+        color: var(--ff-link-hover);
+        outline: none;
+      }
+
+      .ff-add-details:hover .ff-add-details__icon,
+      .ff-add-details:focus-visible .ff-add-details__icon {
+        color: var(--ff-link-hover);
+      }
+
+      .ff-add-details:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+      }
+
+      .ff-add-details:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .ff-add-details:disabled .ff-add-details__icon {
+        color: var(--color-text-secondary);
+      }
+
+      /* Traveller field stack: 4px between input shell / hint / error; 16px between field groups */
+      .ff-traveller-form .ff-field {
+        margin: 0 0 var(--space-4);
+        padding: 0;
+      }
+
+      .ff-traveller-form .ff-field > .ds-label {
+        margin: 0 0 var(--space-1);
+      }
+
+      .ff-traveller-form .ff-field > .ds-hint {
+        margin: 0;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.2s ease,
+          opacity 0.15s ease,
+          margin-top 0.15s ease;
+      }
+
+      .ff-traveller-form .ff-field:focus-within > .ds-hint {
+        max-height: 6em;
+        opacity: 1;
+        margin-top: var(--space-1);
+      }
+
+      /* Keep travel-document hint hidden while typing/focused. */
+      .ff-traveller-form .ff-field--doc:focus-within > .ds-hint {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+      }
+
+      .ff-traveller-form .ff-field > .ds-field-error {
+        margin: var(--space-1) 0 0;
+      }
+
+      .ff-check {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: 4px;
+        font-size: var(--font-size-sm);
+        color: var(--color-text-primary);
+        cursor: pointer;
+      }
+
+      .ff-check input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        accent-color: var(--color-primary);
+      }
+
+      .ff-ff-extra[hidden] {
+        display: none !important;
+      }
+
+      .ff-date-empty {
+        color: var(--color-text-hint);
+      }
+
+      .ff-float__input[data-mask-type]::placeholder {
+        color: transparent;
+        opacity: 1;
+      }
+
+      .ff-float__input[data-mask-type]:focus::placeholder {
+        color: var(--color-text-hint);
+      }
+
+      .ff-inline-edit-search {
+        margin-left: var(--space-1);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-primary);
+        font-size: inherit;
+        font-weight: var(--font-weight-semibold);
+        line-height: inherit;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      select.ff-float__input.ff-float__select {
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 18px;
+        padding-right: 40px;
+      }
+
+      .ff-country-panel {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 4px);
+        max-height: 220px;
+        overflow: auto;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border-default);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--ff-card-shadow);
+        z-index: 20;
+      }
+
+      .ff-country-panel.is-open {
+        display: block;
+      }
+
+      .ff-country-panel button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: var(--space-3) var(--space-4);
+        border: none;
+        background: none;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        min-height: 44px;
+      }
+
+      .ff-country-panel button:hover,
+      .ff-country-panel button:focus-visible {
+        background: var(--color-background);
+      }
+
+      .ff-save-row {
+        margin-top: 0;
+        padding-top: 0;
+        padding-bottom: var(--space-4);
+      }
+
+      .ff-save-row .ds-btn-primary {
+        width: 100%;
+      }
+
+      .ds-btn-primary:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .ds-btn-primary:disabled:hover,
+      .ds-btn-primary:disabled:active {
+        background: #9ca3af;
+      }
+
+      .ff-sticky {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0;
+        width: 100%;
+        max-width: var(--ff-page-max);
+        z-index: 90;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        background: var(--sticky-bar-bg);
+        box-shadow: 0 -4px 24px rgba(17, 24, 39, 0.06);
+      }
+
+      .ff-sticky-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--color-border-default);
+      }
+
+      .ff-sticky-progress__fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #3239CD, #EE3EEB);
+        transition: width 400ms ease-out;
+      }
+
+      .ff-sticky__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding: var(--sticky-bar-padding);
+      }
+
+      .ff-sticky__price {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        line-height: 1.2;
+      }
+
+      .ff-sticky__sub {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary);
+        margin-top: 2px;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body class="traveller-page">
+    <div class="wrap">
+      <header class="ff-nav" aria-label="Main">
+        <a class="ff-logo" href="#" onclick="return false">
+          <img
+            class="ff-logo__img"
+            src="assets/fly-fairly-logo.png"
+            alt="Fly Fairly"
+            width="435"
+            height="116"
+          />
+        </a>
+        <div class="ff-nav__actions">
+          <svg
+            class="ff-nav__lang-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q41-45 62.5-100T800-480q0-98-54-179.5T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z"
+            />
+          </svg>
+          <img
+            class="ff-nav__avatar"
+            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=faces"
+            width="24"
+            height="24"
+            alt=""
+          />
+          <svg class="ff-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+          </svg>
+        </div>
+      </header>
+
+      <div class="ff-flow-stepper-wrap">
+        <div class="ff-flow-stepper" role="list" aria-label="Booking progress">
+          <div
+            class="ff-flow-stepper__node ff-flow-stepper__node--current"
+            role="listitem"
+            aria-current="step"
+          >
+            <svg
+              class="ff-flow-stepper__icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"
+              />
+            </svg>
+          </div>
+          <div class="ff-flow-stepper__line ff-flow-stepper__line--todo" aria-hidden="true"></div>
+          <div class="ff-flow-stepper__node ff-flow-stepper__node--upcoming" role="listitem" aria-label="Add-ons">
+            <span class="material-icons" aria-hidden="true">add</span>
+          </div>
+          <div class="ff-flow-stepper__line ff-flow-stepper__line--todo" aria-hidden="true"></div>
+          <div class="ff-flow-stepper__node ff-flow-stepper__node--upcoming" role="listitem">
+            <svg
+              class="ff-flow-stepper__icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 -960 960 960"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M880-720v480q0 33-23.5 56.5T800-160H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720Zm-720 80h640v-80H160v80Zm0 160v240h640v-240H160Z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <section class="ff-card ff-card--flight" aria-labelledby="flight-heading">
+        <div class="ff-flight-body">
+          <h2 id="flight-heading" class="visually-hidden">Flight summary</h2>
+          <div class="ff-flight-top">
+            <span class="ff-flight-date">1 May 2026</span>
+            <button
+              type="button"
+              id="btn-flight-details-open"
+              class="ff-flight-info"
+              aria-label="Flight details"
+              aria-expanded="false"
+              aria-controls="flight-details-sheet"
+            >
+              <span class="ff-flight-info__label">Details</span>
+              <svg class="ff-flight-info__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <circle cx="12" cy="12" r="9.25" />
+                <path stroke-linecap="round" d="M12 16v-5M12 8h.01" />
+              </svg>
+            </button>
+          </div>
+          <div class="ff-flight-route">
+            <svg
+              class="ff-flight-route__icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 21v-2h18v2zm1.75-5L1 9.75l2.4-.65l2.8 2.35l3.5-.925l-5.175-6.9l2.9-.775L14.9 9.125l4.25-1.15q.8-.225 1.513.187t.937 1.213t-.187 1.513t-1.213.937z"
+              />
+            </svg>
+            <span class="ff-flight-route__text">DEL to LHR</span>
+          </div>
+          <p class="ff-flight-meta">
+            <span class="ff-flight-meta__time">10:55 AM – 5:45 PM</span>
+            <span class="ff-flight-meta__sep"> • </span>
+            <span class="ff-flight-meta__dur">11h 20m</span>
+            <span class="ff-flight-meta__dot"> • </span>
+            <span class="ff-flight-meta__stops">1 stop</span>
+          </p>
+          <div class="ff-flight-footer">
+            <div class="ff-airline">
+              <span class="ff-airline__logo" aria-hidden="true"></span>
+              <span class="ff-airline__name">Indigo</span>
+            </div>
+            <a class="ff-flight-fare-rules" href="#" onclick="return false">
+              Fare rules
+              <svg class="ff-flight-fare-rules__chev" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div
+        id="flight-details-sheet"
+        class="ff-sheet"
+        role="presentation"
+        aria-hidden="true"
+        hidden
+      >
+        <div class="ff-sheet__backdrop" data-sheet-close tabindex="-1" aria-hidden="true"></div>
+        <div
+          class="ff-sheet__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="flight-details-title"
+          tabindex="-1"
+        >
+          <div class="ff-sheet__header">
+            <h2 id="flight-details-title" class="ff-sheet__title">Flight details</h2>
+            <button type="button" class="ff-sheet__close" data-sheet-close aria-label="Close flight details">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="ff-sheet__scroll">
+            <div class="ff-sheet__lead">
+              <div class="ff-sheet__lead-row1">
+                <svg
+                  class="ff-flight-route__icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 21v-2h18v2zm1.75-5L1 9.75l2.4-.65l2.8 2.35l3.5-.925l-5.175-6.9l2.9-.775L14.9 9.125l4.25-1.15q.8-.225 1.513.187t.937 1.213t-.187 1.513t-1.213.937z"
+                  />
+                </svg>
+                <span>DEL → LHR</span>
+              </div>
+              <p class="ff-sheet__lead-row2">Fri, 1 May 2026 · 11h 20m · 1 stop</p>
+            </div>
+
+            <div class="ff-itin-seg">
+              <div class="ff-itin-flightline">
+                <span class="ff-itin-logo-badge" aria-hidden="true">6E</span>
+                <span>6E 5012 · Indigo · Airbus A321neo</span>
+              </div>
+              <div class="ff-itin-leg">
+                <div class="ff-itin-rail" aria-hidden="true">
+                  <span class="ff-itin-dot ff-itin-dot--dep"></span>
+                  <div class="ff-itin-vline"></div>
+                  <span class="ff-itin-dot ff-itin-dot--arr"></span>
+                </div>
+                <div class="ff-itin-leg__grid">
+                  <div class="ff-itin-stop-times ff-itin-stop-times--dep">
+                    <span class="ff-itin-stop__time">10:55 AM</span>
+                    <span class="ff-itin-stop__date">1 May</span>
+                  </div>
+                  <div class="ff-itin-stop-place ff-itin-stop-place--dep">
+                    <span class="ff-itin-stop__dest">New Delhi</span>
+                    <span class="ff-itin-stop__air">Indira Gandhi (DEL)</span>
+                  </div>
+                  <span class="ff-itin-dur">3h 10m</span>
+                  <div class="ff-itin-leg__grid-spacer" aria-hidden="true"></div>
+                  <div class="ff-itin-stop-times ff-itin-stop-times--arr">
+                    <span class="ff-itin-stop__time">2:05 PM</span>
+                    <span class="ff-itin-stop__date">1 May</span>
+                  </div>
+                  <div class="ff-itin-stop-place ff-itin-stop-place--arr">
+                    <span class="ff-itin-stop__dest">Doha</span>
+                    <span class="ff-itin-stop__air">Hamad (DOH)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ff-itin-layover">
+              <span class="ff-itin-layover__dur">2h 35m</span>
+              <span class="ff-badge">Layover at Hamad (DOH)</span>
+            </div>
+
+            <div class="ff-itin-seg">
+              <div class="ff-itin-flightline">
+                <span class="ff-itin-logo-badge" aria-hidden="true">6E</span>
+                <span>6E 5018 · Indigo · Boeing 787-9</span>
+              </div>
+              <div class="ff-itin-leg">
+                <div class="ff-itin-rail" aria-hidden="true">
+                  <span class="ff-itin-dot ff-itin-dot--dep"></span>
+                  <div class="ff-itin-vline"></div>
+                  <span class="ff-itin-dot ff-itin-dot--arr"></span>
+                </div>
+                <div class="ff-itin-leg__grid">
+                  <div class="ff-itin-stop-times ff-itin-stop-times--dep">
+                    <span class="ff-itin-stop__time">4:40 PM</span>
+                    <span class="ff-itin-stop__date">1 May</span>
+                  </div>
+                  <div class="ff-itin-stop-place ff-itin-stop-place--dep">
+                    <span class="ff-itin-stop__dest">Doha</span>
+                    <span class="ff-itin-stop__air">Hamad (DOH)</span>
+                  </div>
+                  <span class="ff-itin-dur">7h 35m</span>
+                  <div class="ff-itin-leg__grid-spacer" aria-hidden="true"></div>
+                  <div class="ff-itin-stop-times ff-itin-stop-times--arr">
+                    <span class="ff-itin-stop__time">5:45 PM</span>
+                    <span class="ff-itin-stop__date">2 May</span>
+                  </div>
+                  <div class="ff-itin-stop-place ff-itin-stop-place--arr">
+                    <span class="ff-itin-stop__dest">London</span>
+                    <span class="ff-itin-stop__air">Heathrow (LHR)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="ff-sheet__footer">Cabin class: <strong>Economy</strong></div>
+        </div>
+      </div>
+
+      <section class="ff-card" aria-labelledby="contact-heading">
+        <h2 id="contact-heading" class="ff-card__title">Contact Information</h2>
+
+        <div class="ff-float" id="contact-email-block">
+          <label class="ff-float__label" for="contact-email">E-mail</label>
+          <div class="ff-float__inner">
+            <input
+              id="contact-email"
+              class="ff-float__input"
+              type="text"
+              inputmode="email"
+              autocomplete="email"
+              value="ishitataak24@gmail.com"
+              aria-describedby="contact-email-hint contact-email-err"
+              aria-invalid="false"
+            />
+          </div>
+          <p class="ff-hint--blue" id="contact-email-hint">
+            <svg
+              class="ff-hint--blue__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+            <span>Booking details will be sent here. Please check!</span>
+          </p>
+          <div class="ds-field-error ff-error" id="contact-email-err" role="alert" hidden></div>
+        </div>
+
+        <div class="ff-float">
+          <span class="ff-float__label" id="phone-lbl">Phone</span>
+          <div class="ff-float__inner" role="group" aria-labelledby="phone-lbl">
+            <div class="ff-phone-row">
+              <div class="ff-phone-cc" aria-hidden="true">
+                <span class="ff-phone-cc__flag">🇮🇳</span>
+                <span class="ff-phone-cc__code">+91</span>
+                <svg class="ff-phone-cc__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6" stroke-linecap="round" />
+                </svg>
+              </div>
+              <input
+                id="contact-phone"
+                class="ff-float__input"
+                type="tel"
+                value="98105-81324"
+                autocomplete="tel"
+                inputmode="tel"
+                aria-label="Phone number (India +91)"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Traveller 1 -->
+      <section class="ff-card ff-traveller" id="traveller-card-1" data-index="1" data-type="adult" data-child-age="0" aria-labelledby="t1-label">
+        <div class="ff-traveller__head ff-traveller__head--with-guide">
+          <h2 class="ff-traveller__title" id="t1-label">Adult 1</h2>
+          <div class="ff-traveller__head-tags">
+            <span class="ff-traveller__head-meta">12+ yrs</span>
+          </div>
+        </div>
+        <button type="button" class="ff-naming-guide-btn">
+          <span>View naming guide</span>
+          <svg
+            class="ff-naming-guide-btn__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M200-200v-560h280v80H280v400h400v-200h80v280H200Zm200-200-56-56 280-280H520v-80h240v240h-80v-104L400-400Z"
+            />
+          </svg>
+        </button>
+        <div class="ff-traveller__collapsed">
+          <div class="ff-traveller-summary">
+            <div class="ff-traveller-summary__row ff-traveller-summary__row--head">
+              <p class="ff-traveller-summary__name" data-summary-name>Adult 1</p>
+              <div class="ff-traveller-summary__tags">
+                <span class="ff-traveller-summary__age" data-summary-age>12+ yrs</span>
+                <svg
+                  class="ff-traveller-summary__status-tick"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 -960 960 960"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5t127 85.5q54 54 85.5 127T880-480q0 82-31.5 155T763-197q-54 54-127 85.5T480-80Zm-42-246 226-226-56-56-170 170-84-84-56 56 140 140Z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <p class="ff-traveller-summary__meta" data-summary-meta></p>
+            <p class="ff-traveller-summary__doc-label">Travel Document:</p>
+            <div class="ff-traveller-summary__row ff-traveller-summary__row--doc">
+              <p class="ff-traveller-summary__doc" data-summary-doc></p>
+              <button type="button" class="ff-add-details" data-add-details>
+                <span class="ff-add-details__label">Edit</span>
+                <svg
+                  class="ff-add-details__icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div class="ff-traveller-summary__row ff-traveller-summary__row--ff">
+              <p class="ff-traveller-summary__ff" data-summary-ff></p>
+              <button type="button" class="ff-add-details" data-add-details>
+                <span class="ff-add-details__label">Edit</span>
+                <svg
+                  class="ff-add-details__icon"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="ff-traveller__expanded">
+          <form class="ff-traveller-form" novalidate>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-profile">Who's flying?</label>
+                <div class="ff-float__inner">
+                  <select class="ff-float__input ff-float__select" id="t1-profile" name="travellerProfile">
+                    <option value="" selected>Select passenger</option>
+                    <option value="new">New passenger</option>
+                    <option value="profile-1">Aarav Sharma</option>
+                    <option value="profile-2">Ishita Taak</option>
+                    <option value="profile-3">Meera Nair</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-first">First name</label>
+                <div class="ff-float__inner">
+                  <input class="ff-float__input" id="t1-first" name="first" type="text" autocomplete="given-name" />
+                </div>
+              </div>
+              <p class="ds-hint">Use the spelling as on your travel document</p>
+              <div class="ds-field-error ff-error" id="t1-first-err" hidden></div>
+            </div>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-last">Last name</label>
+                <div class="ff-float__inner">
+                  <input class="ff-float__input" id="t1-last" name="last" type="text" autocomplete="family-name" />
+                </div>
+              </div>
+              <p class="ds-hint">Use the spelling as on your travel document</p>
+              <div class="ds-field-error ff-error" id="t1-last-err" hidden></div>
+            </div>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-gender">Gender</label>
+                <div class="ff-float__inner">
+                  <select
+                    class="ff-float__input ff-float__select"
+                    id="t1-gender"
+                    name="gender"
+                    autocomplete="sex"
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="trans">Trans</option>
+                  </select>
+                </div>
+              </div>
+              <div class="ds-field-error ff-error" id="t1-gender-err" hidden></div>
+            </div>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-dob">Date of birth (DD/MM/YYYY)</label>
+                <div class="ff-float__inner">
+                  <input
+                    class="ff-float__input"
+                    id="t1-dob"
+                    name="dob"
+                    type="text"
+                    data-mask-type="ddmmyyyy"
+                    placeholder="DD/MM/YYYY"
+                    inputmode="numeric"
+                    maxlength="10"
+                  />
+                </div>
+              </div>
+              <p class="ds-hint">Use the one on your travel document</p>
+              <div class="ds-field-error ff-error" id="t1-dob-err" hidden></div>
+            </div>
+            <div class="ff-field ff-field--doc">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-doc">Travel document number</label>
+                <div class="ff-float__inner">
+                  <input class="ff-float__input" id="t1-doc" name="doc" type="text" autocomplete="off" />
+                </div>
+              </div>
+              <p class="ds-hint">Enter exactly as shown, e.g. A1234567</p>
+              <div class="ds-field-error ff-error" id="t1-doc-err" hidden></div>
+            </div>
+            <div class="ff-field ff-country-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-country-input">Country of issue</label>
+                <div class="ff-float__inner">
+                  <div class="ff-country-wrap">
+                    <input
+                      class="ff-float__input"
+                      id="t1-country-input"
+                      type="text"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-haspopup="listbox"
+                      aria-controls="t1-country-list"
+                      autocomplete="off"
+                      value="India"
+                    />
+                    <div class="ff-country-panel" id="t1-country-list" role="listbox" hidden></div>
+                  </div>
+                </div>
+              </div>
+              <p class="ds-hint">Country of your passport</p>
+            </div>
+            <div class="ff-field">
+              <div class="ff-float">
+                <label class="ff-float__label" for="t1-exp">Expiry date (MM/YYYY)</label>
+                <div class="ff-float__inner">
+                  <input
+                    class="ff-float__input"
+                    id="t1-exp"
+                    name="expiry"
+                    type="text"
+                    data-mask-type="mmyyyy"
+                    placeholder="MM/YYYY"
+                    inputmode="numeric"
+                    maxlength="7"
+                  />
+                </div>
+              </div>
+              <p class="ds-hint">Must be valid on your travel date (1 May 2026)</p>
+              <div class="ds-field-error ff-error" id="t1-exp-err" hidden></div>
+            </div>
+            <div class="ff-field">
+              <label class="ff-check">
+                <input type="checkbox" id="t1-ff-add" name="ffAdd" />
+                <span>Add frequent flyer number</span>
+              </label>
+            </div>
+            <div class="ff-ff-extra" id="t1-ff-extra" hidden>
+              <div class="ff-field">
+                <div class="ff-float">
+                  <label class="ff-float__label" for="t1-ff-airline">Airline</label>
+                  <div class="ff-float__inner">
+                    <select class="ff-float__input ff-float__select" id="t1-ff-airline" name="ffAirline">
+                      <option value="">Select airline</option>
+                      <option value="indigo">IndiGo</option>
+                      <option value="airindia">Air India</option>
+                      <option value="vistara">Vistara</option>
+                      <option value="spicejet">SpiceJet</option>
+                      <option value="akasa">Akasa Air</option>
+                    </select>
+                  </div>
+                </div>
+              <div class="ds-field-error ff-error" id="t1-ff-airline-err" hidden></div>
+              </div>
+              <div class="ff-field">
+                <div class="ff-float">
+                  <label class="ff-float__label" for="t1-ff-number">Membership number</label>
+                  <div class="ff-float__inner">
+                    <input class="ff-float__input" id="t1-ff-number" name="ffNumber" type="text" autocomplete="off" />
+                  </div>
+                </div>
+              <div class="ds-field-error ff-error" id="t1-ff-number-err" hidden></div>
+              </div>
+            </div>
+            <div class="ff-field">
+              <label class="ff-check">
+                <input type="checkbox" id="t1-save-details" name="saveDetails" checked />
+                <span>Save as traveller profile</span>
+              </label>
+            </div>
+            <div class="ff-save-row">
+              <button type="submit" class="ds-btn-primary">Save & next</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Traveller 2–4: markup generated by template in JS to avoid huge duplication — actually user asked HTML; I'll include compact repeats -->
+
+      <section class="ff-card ff-traveller is-collapsed" id="traveller-card-2" data-index="2" data-type="adult" data-child-age="0" aria-labelledby="t2-label">
+        <div class="ff-traveller__head ff-traveller__head--with-guide">
+          <h2 class="ff-traveller__title" id="t2-label">Adult 2</h2>
+          <div class="ff-traveller__head-tags">
+            <span class="ff-traveller__head-meta">12+ yrs</span>
+          </div>
+        </div>
+        <button type="button" class="ff-naming-guide-btn">
+          <span>View naming guide</span>
+          <svg
+            class="ff-naming-guide-btn__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M200-200v-560h280v80H280v400h400v-200h80v280H200Zm200-200-56-56 280-280H520v-80h240v240h-80v-104L400-400Z"
+            />
+          </svg>
+        </button>
+        <div class="ff-traveller__collapsed ff-traveller__collapsed--pending"></div>
+        <div class="ff-traveller__expanded"></div>
+      </section>
+
+      <section class="ff-card ff-traveller is-collapsed" id="traveller-card-3" data-index="3" data-type="child" data-child-age="10" aria-labelledby="t3-label">
+        <div class="ff-traveller__head ff-traveller__head--with-guide">
+          <h2 class="ff-traveller__title" id="t3-label">Child 1</h2>
+          <div class="ff-traveller__head-tags">
+            <span class="ff-traveller__head-meta">2-11 yrs</span>
+          </div>
+        </div>
+        <button type="button" class="ff-naming-guide-btn">
+          <span>View naming guide</span>
+          <svg
+            class="ff-naming-guide-btn__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M200-200v-560h280v80H280v400h400v-200h80v280H200Zm200-200-56-56 280-280H520v-80h240v240h-80v-104L400-400Z"
+            />
+          </svg>
+        </button>
+        <div class="ff-traveller__collapsed ff-traveller__collapsed--pending"></div>
+        <div class="ff-traveller__expanded"></div>
+      </section>
+
+      <section class="ff-card ff-traveller is-collapsed" id="traveller-card-4" data-index="4" data-type="child" data-child-age="10" aria-labelledby="t4-label">
+        <div class="ff-traveller__head ff-traveller__head--with-guide">
+          <h2 class="ff-traveller__title" id="t4-label">Child 2</h2>
+          <div class="ff-traveller__head-tags">
+            <span class="ff-traveller__head-meta">2-11 yrs</span>
+          </div>
+        </div>
+        <button type="button" class="ff-naming-guide-btn">
+          <span>View naming guide</span>
+          <svg
+            class="ff-naming-guide-btn__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 -960 960 960"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M200-200v-560h280v80H280v400h400v-200h80v280H200Zm200-200-56-56 280-280H520v-80h240v240h-80v-104L400-400Z"
+            />
+          </svg>
+        </button>
+        <div class="ff-traveller__collapsed ff-traveller__collapsed--pending"></div>
+        <div class="ff-traveller__expanded"></div>
+      </section>
+
+      <div style="height: var(--space-2)"></div>
+    </div>
+
+    <footer class="ff-sticky" role="contentinfo">
+      <div class="ff-sticky-progress">
+        <div class="ff-sticky-progress__fill" id="stickyProgressFill"></div>
+      </div>
+      <div class="ff-sticky__inner">
+        <div>
+          <div class="ff-sticky__price">₹97,272</div>
+          <div class="ff-sticky__sub">4 travellers</div>
+        </div>
+        <button type="button" class="ds-btn-primary" id="btn-next" disabled>Next</button>
+      </div>
+    </footer>
+
+    <script>
+      (function contactFieldsValidState() {
+        var email = document.getElementById("contact-email");
+        var wrapE = email && email.closest(".ff-float__inner");
+        var emailErr = document.getElementById("contact-email-err");
+        var emailBlock = document.getElementById("contact-email-block");
+        var btnNext = document.getElementById("btn-next");
+
+        var emailState = {
+          touched: false,
+          dirty: false,
+          submitAttempted: false,
+        };
+
+        function showEmailErrorEl(el, msg) {
+          if (!el) return;
+          el.textContent = msg;
+          el.removeAttribute("hidden");
+          el.style.display = "block";
+        }
+
+        function hideEmailErrorEl(el) {
+          if (!el) return;
+          el.textContent = "";
+          el.setAttribute("hidden", "");
+          el.style.display = "none";
+        }
+
+        function emailErrorIsVisible() {
+          return emailErr && !emailErr.hasAttribute("hidden");
+        }
+
+        function isValidLocalChar(ch) {
+          return (
+            (ch >= "a" && ch <= "z") ||
+            (ch >= "A" && ch <= "Z") ||
+            (ch >= "0" && ch <= "9") ||
+            ch === "." ||
+            ch === "_" ||
+            ch === "%" ||
+            ch === "+" ||
+            ch === "-"
+          );
+        }
+
+        function isValidDomainChar(ch) {
+          return (
+            (ch >= "a" && ch <= "z") ||
+            (ch >= "A" && ch <= "Z") ||
+            (ch >= "0" && ch <= "9") ||
+            ch === "." ||
+            ch === "-"
+          );
+        }
+
+        /** While focused: incomplete but plausibly still typing toward a valid address — suppress errors until blur. */
+        function isEmailMidTypingValidPrefix(v) {
+          var s = String(v != null ? v : "");
+          var i;
+          if (s.trim() === "") return false;
+          if (/\s/.test(s)) return false;
+          var atPos = s.indexOf("@");
+          if (atPos === -1) {
+            for (i = 0; i < s.length; i++) {
+              if (!isValidLocalChar(s.charAt(i))) return false;
+            }
+            return true;
+          }
+          var atCount = (s.match(/@/g) || []).length;
+          if (atPos !== s.lastIndexOf("@") || atCount !== 1) return false;
+          var local = s.slice(0, atPos);
+          var domain = s.slice(atPos + 1);
+          if (local.trim() === "") return false;
+          for (i = 0; i < local.length; i++) {
+            if (!isValidLocalChar(local.charAt(i))) return false;
+          }
+          if (domain.indexOf(".") !== -1) return false;
+          for (i = 0; i < domain.length; i++) {
+            if (!isValidDomainChar(domain.charAt(i))) return false;
+          }
+          return true;
+        }
+
+        function applyEmailValidationResult(msg) {
+          if (!email || !wrapE || !emailErr) return;
+          if (msg) {
+            showEmailErrorEl(emailErr, msg);
+            wrapE.classList.add("is-error");
+            email.setAttribute("aria-invalid", "true");
+          } else {
+            hideEmailErrorEl(emailErr);
+            wrapE.classList.remove("is-error");
+            email.setAttribute("aria-invalid", "false");
+          }
+        }
+
+        function validateEmailBlur(value) {
+          var v = String(value != null ? value : "");
+          if (v.trim() === "") {
+            return "Email address is required";
+          }
+          if (v.indexOf("@") === -1) {
+            return "Please include an '@' in the email address";
+          }
+          var at = v.indexOf("@");
+          var local = v.slice(0, at);
+          var domain = v.slice(at + 1);
+          if (local.trim() === "") {
+            return "Please enter the part before '@'";
+          }
+          if (domain.trim() === "") {
+            return "Please enter a domain after '@'";
+          }
+          if (domain.indexOf(".") === -1) {
+            return "Please enter a valid domain (e.g. gmail.com)";
+          }
+          if (v.endsWith(".")) {
+            return "Email address cannot end with a dot";
+          }
+          if (/\s/.test(v)) {
+            return "Email address cannot contain spaces";
+          }
+
+          var lastDotInDomain = domain.lastIndexOf(".");
+          var tld = lastDotInDomain === -1 ? "" : domain.slice(lastDotInDomain + 1);
+          if (tld.length < 2) {
+            return "Please enter a valid domain extension (e.g. .com, .in)";
+          }
+          if (tld.length > 6) {
+            return "Please enter a valid domain extension (e.g. .com, .org)";
+          }
+          if (/\.\./.test(v)) {
+            return "Email address cannot contain consecutive dots";
+          }
+          var atCount = (v.match(/@/g) || []).length;
+          if (atCount !== 1) {
+            return "Email address can only contain one '@'";
+          }
+          var i;
+          for (i = 0; i < local.length; i++) {
+            var ch = local.charAt(i);
+            var isLocalOk =
+              (ch >= "a" && ch <= "z") ||
+              (ch >= "A" && ch <= "Z") ||
+              (ch >= "0" && ch <= "9") ||
+              ch === "." ||
+              ch === "_" ||
+              ch === "%" ||
+              ch === "+" ||
+              ch === "-";
+            if (!isLocalOk) {
+              return "Email address contains an invalid character";
+            }
+          }
+          for (i = 0; i < domain.length; i++) {
+            var dch = domain.charAt(i);
+            var isDomOk =
+              (dch >= "a" && dch <= "z") ||
+              (dch >= "A" && dch <= "Z") ||
+              (dch >= "0" && dch <= "9") ||
+              dch === "." ||
+              dch === "-";
+            if (!isDomOk) {
+              return "Email address contains an invalid character after '@'";
+            }
+          }
+          var labels = domain.split(".");
+          for (i = 0; i < labels.length; i++) {
+            var lab = labels[i];
+            if (lab.length === 0) {
+              continue;
+            }
+            if (lab.charAt(0) === "-" || lab.charAt(lab.length - 1) === "-") {
+              return "Please enter a valid email domain";
+            }
+          }
+
+          return null;
+        }
+
+        function runEmailInputValidation() {
+          if (!email || !wrapE || !emailErr) return;
+          var msg = validateEmailBlur(email.value);
+          if (msg === null) {
+            applyEmailValidationResult(null);
+            return;
+          }
+          if (document.activeElement === email && isEmailMidTypingValidPrefix(email.value)) {
+            hideEmailErrorEl(emailErr);
+            wrapE.classList.remove("is-error");
+            email.setAttribute("aria-invalid", "false");
+            return;
+          }
+          applyEmailValidationResult(msg);
+        }
+
+        if (email && wrapE && emailErr) {
+          email.addEventListener("focus", function () {
+            emailState.touched = true;
+          });
+
+          email.addEventListener("input", function () {
+            emailState.dirty = true;
+            if (!emailErrorIsVisible()) return;
+            runEmailInputValidation();
+          });
+
+          email.addEventListener("blur", function () {
+            var raw = email.value;
+            var empty = !String(raw || "").trim();
+            if (empty && !emailState.dirty) {
+              hideEmailErrorEl(emailErr);
+              wrapE.classList.remove("is-error");
+              email.setAttribute("aria-invalid", "false");
+              return;
+            }
+            if (!emailState.dirty && !emailState.submitAttempted) {
+              return;
+            }
+            var msg = validateEmailBlur(email.value);
+            applyEmailValidationResult(msg);
+          });
+        }
+
+        if (btnNext && email && wrapE && emailErr) {
+          btnNext.addEventListener("click", function () {
+            emailState.touched = true;
+            emailState.dirty = true;
+            emailState.submitAttempted = true;
+            var raw = String(email.value || "");
+            var msg = !raw.trim() ? "Email address is required" : validateEmailBlur(email.value);
+            applyEmailValidationResult(msg);
+            if (msg) {
+              var scrollEl = emailBlock || email;
+              scrollEl.scrollIntoView({ block: "center", behavior: "smooth" });
+              window.setTimeout(function () {
+                if (email.focus) email.focus({ preventScroll: true });
+              }, 100);
+            }
+          });
+        }
+      })();
+
+      (function () {
+        const TRAVEL_END = new Date(2026, 4, 1);
+        const COUNTRIES = [
+          "Afghanistan",
+          "Australia",
+          "Bangladesh",
+          "Brazil",
+          "Canada",
+          "China",
+          "France",
+          "Germany",
+          "India",
+          "Italy",
+          "Japan",
+          "Kenya",
+          "Malaysia",
+          "Nepal",
+          "Singapore",
+          "United Arab Emirates",
+          "United Kingdom",
+          "United States",
+        ].sort((a, b) => a.localeCompare(b));
+
+        const saved = [false, false, false, false];
+        let activeIndex = 0;
+        const DUMMY_TRAVELLER_PROFILES = {
+          "profile-1": {
+            first: "Aarav",
+            last: "Sharma",
+            gender: "male",
+            dob: "14/06/1994",
+            doc: "P1234567",
+            country: "India",
+            expiry: "05/2031",
+            ffEnabled: true,
+            ffAirline: "indigo",
+            ffNumber: "FF90871",
+          },
+          "profile-2": {
+            first: "Ishita",
+            last: "Taak",
+            gender: "female",
+            dob: "24/08/1999",
+            doc: "T7654321",
+            country: "India",
+            expiry: "05/2030",
+            ffEnabled: true,
+            ffAirline: "airindia",
+            ffNumber: "AI44120",
+          },
+          "profile-3": {
+            first: "Meera",
+            last: "Nair",
+            gender: "female",
+            dob: "03/11/2001",
+            doc: "N3456789",
+            country: "United Arab Emirates",
+            expiry: "09/2032",
+            ffEnabled: false,
+            ffAirline: "",
+            ffNumber: "",
+          },
+        };
+
+        function updateStickyProgress(completedCount) {
+          const fill = document.getElementById("stickyProgressFill");
+          if (!fill) return;
+          const percent = (completedCount / 4) * 100;
+          fill.style.width = percent + "%";
+        }
+
+        function ageOnDate(dob, ref) {
+          let age = ref.getFullYear() - dob.getFullYear();
+          const m = ref.getMonth() - dob.getMonth();
+          if (m < 0 || (m === 0 && ref.getDate() < dob.getDate())) age--;
+          return age;
+        }
+
+        function parseDMYFromDisplay(str) {
+          const parts = str.split("/").map((x) => x.trim());
+          if (parts.length !== 3) return null;
+          const d = +parts[0],
+            mo = +parts[1] - 1,
+            y = +parts[2];
+          if (!y || mo < 0 || mo > 11) return null;
+          const dt = new Date(y, mo, d);
+          if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
+          return dt;
+        }
+
+        function formatDobForSummary(dobStr) {
+          const dt = parseDMYFromDisplay((dobStr || "").trim());
+          if (!dt) return (dobStr || "").trim();
+          const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
+          return dt.getDate() + " " + months[dt.getMonth()] + " " + dt.getFullYear();
+        }
+
+        function summaryGenderDobLine(genderSelect, dobStr, cardType) {
+          const opt = genderSelect && genderSelect.options[genderSelect.selectedIndex];
+          const rawGender = opt && opt.value ? String(opt.text || "").trim().toLowerCase() : "";
+          const roleWord = cardType === "child" ? "Child" : "Adult";
+          let g = "";
+          if (rawGender) {
+            const genderTitle = rawGender.charAt(0).toUpperCase() + rawGender.slice(1);
+            g = genderTitle + " " + roleWord;
+          }
+          const d = formatDobForSummary(dobStr);
+          if (g && d) return g + " \u2022 " + d;
+          return g || d;
+        }
+
+        function travellerTypeLabel(type) {
+          return type === "child" ? "Child" : "Adult";
+        }
+
+        function travellerTypeOrdinal(card) {
+          if (!card || !card.dataset || !card.dataset.type) return 1;
+          const type = card.dataset.type;
+          const idx = Number.parseInt(String(card.dataset.index || "0"), 10);
+          if (!idx) return 1;
+          let count = 0;
+          document.querySelectorAll(".ff-traveller").forEach((c) => {
+            const cIdx = Number.parseInt(String(c.dataset.index || "0"), 10);
+            if (c.dataset.type === type && cIdx > 0 && cIdx <= idx) count += 1;
+          });
+          return count || 1;
+        }
+
+        /** Same as header age line: "12+ yrs" for adults, "2-11 yrs" for children. */
+        function travellerSummaryAgeCaption(card) {
+          if (!card || !card.dataset) return "";
+          if (card.dataset.type === "child") {
+            return "2-11 yrs";
+          }
+          return "12+ yrs";
+        }
+
+        /** Card header before we have saved name data (matches <h2> placeholder in HTML). */
+        function defaultTravellerHeading(card) {
+          const role = travellerTypeLabel(card && card.dataset ? card.dataset.type : "");
+          return role + " " + String(travellerTypeOrdinal(card));
+        }
+
+        function fillTravellerSummary(card, form, index) {
+          const prefix = "t" + index;
+          const root = card.querySelector(".ff-traveller-summary");
+          if (!root) return;
+          const first = form.querySelector("#" + prefix + "-first");
+          const last = form.querySelector("#" + prefix + "-last");
+          const genderSelect = form.querySelector("#" + prefix + "-gender");
+          const dob = form.querySelector("#" + prefix + "-dob");
+          const doc = form.querySelector("#" + prefix + "-doc");
+          const countryInput = form.querySelector("#" + prefix + "-country-input");
+          const exp = form.querySelector("#" + prefix + "-exp");
+          const ffAdd = form.querySelector("#" + prefix + "-ff-add");
+          const ffNumber = form.querySelector("#" + prefix + "-ff-number");
+          const countryIn = form.querySelector("#" + prefix + "-country-input");
+          const nameEl = root.querySelector("[data-summary-name]");
+          const ageEl = root.querySelector("[data-summary-age]");
+          const metaEl = root.querySelector("[data-summary-meta]");
+          const docEl = root.querySelector("[data-summary-doc]");
+          const ffEl = root.querySelector("[data-summary-ff]");
+          const firstTrim = ((first && first.value) || "").trim();
+          const lastTrim = ((last && last.value) || "").trim();
+          const headingName = (firstTrim + " " + lastTrim).trim();
+          const summaryNameUpper = headingName.toUpperCase();
+          if (nameEl) {
+            nameEl.textContent = summaryNameUpper;
+          }
+          const titleEl = card.querySelector(".ff-traveller__title");
+          if (titleEl) {
+            titleEl.textContent = headingName || defaultTravellerHeading(card);
+          }
+          if (ageEl) ageEl.textContent = travellerSummaryAgeCaption(card);
+          if (metaEl)
+            metaEl.textContent = summaryGenderDobLine(
+              genderSelect,
+              dob ? dob.value : "",
+              card.dataset ? card.dataset.type : ""
+            );
+          if (docEl) {
+            const parts = [
+              doc ? doc.value.trim() : "",
+              countryIn ? countryIn.value.trim() : "",
+              exp ? exp.value.trim() : "",
+            ].filter(Boolean);
+            docEl.textContent = parts.join(" \u2022 ");
+          }
+          if (ffEl) {
+            const hasFrequentFlier =
+              !!(ffAdd && ffAdd.checked) && !!String((ffNumber && ffNumber.value) || "").trim();
+            ffEl.textContent = hasFrequentFlier ? "Frequent flier number added" : "";
+          }
+        }
+
+        function parseMY(str) {
+          const cleaned = str.replace(/\s/g, "");
+          const m = cleaned.match(/^(\d{1,2})\/(\d{4})$/);
+          if (!m) return null;
+          const month = +m[1] - 1;
+          const year = +m[2];
+          if (month < 0 || month > 11) return null;
+          return new Date(year, month, 1);
+        }
+
+        function endOfExpiryMonth(myDate) {
+          return new Date(myDate.getFullYear(), myDate.getMonth() + 1, 0);
+        }
+
+        const NAME_MAX_COMBINED = 40;
+        const nameMinLenErr = "Name must be at least 2 characters";
+        const nameCharsetErr = "Use only letters from your passport (A–Z, no special characters)";
+        const nameFullLenErr =
+          "Enter as much of the name as fits. Airlines will automatically truncate the rest.";
+        /** Latin letters; word parts may be joined by space, hyphen, or apostrophe (e.g. O'Brien, Mary-Jane). */
+        const namePartRe = /^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/;
+
+        function combinedFullName(firstVal, lastVal) {
+          const a = (firstVal || "").trim();
+          const b = (lastVal || "").trim();
+          if (a && b) return a + " " + b;
+          return a || b;
+        }
+
+        function validateFirstName(firstVal, lastVal) {
+          const v = (firstVal || "").trim();
+          if (!v) return "This field is required. If no first name type 'FNU'";
+          if (v.length < 2) return nameMinLenErr;
+          if (!namePartRe.test(v)) return nameCharsetErr;
+          if (combinedFullName(firstVal, lastVal).length > NAME_MAX_COMBINED) return nameFullLenErr;
+          return null;
+        }
+
+        function validateLastName(firstVal, lastVal) {
+          const v = (lastVal || "").trim();
+          if (!v) return "This field is required";
+          if (v.length < 2) return nameMinLenErr;
+          if (!namePartRe.test(v)) return nameCharsetErr;
+          if (combinedFullName(firstVal, lastVal).length > NAME_MAX_COMBINED) return nameFullLenErr;
+          return null;
+        }
+
+        function validateGender(el) {
+          if (!el || !String(el.value || "").trim()) return "This field is required";
+          return null;
+        }
+
+        function extractDateDigits(input, maxLen) {
+          return String((input && input.value) || "")
+            .replace(/\D/g, "")
+            .slice(0, maxLen);
+        }
+
+        function validateDob(input, type, selectedChildAge) {
+          const rawDigits = extractDateDigits(input, 8);
+          const dd = rawDigits.slice(0, 2);
+          const mm = rawDigits.slice(2, 4);
+          const yyyy = rawDigits.slice(4, 8);
+          const hasAny = rawDigits.length > 0;
+          const isComplete = rawDigits.length === 8;
+          const isDirty = !!(input && input.dataset && input.dataset.dirty === "true");
+          const isTouched = !!(input && input.dataset && input.dataset.touched === "true");
+          if (!hasAny) return "This field is required";
+          if (!isComplete) return isDirty && isTouched ? "Please enter a complete date" : null;
+          const dt = parseDMYFromDisplay(dd + "/" + mm + "/" + yyyy);
+          if (!dt) return "Please enter a valid date";
+          const age = ageOnDate(dt, TRAVEL_END);
+          if (type === "adult") {
+            if (age < 18) return "Traveller must be 18 or older";
+          } else {
+            const selected = Number.parseInt(String(selectedChildAge || ""), 10);
+            if (!Number.isNaN(selected) && age !== selected) {
+              return "__CHILD_AGE_MISMATCH__:" + String(age) + ":" + String(selected);
+            }
+            if (Number.isNaN(selected) && (age < 9 || age > 11)) {
+              return "Date of birth doesn't match the child's age entered at search";
+            }
+          }
+          return null;
+        }
+
+        function validateDoc(v) {
+          const s = (v || "").trim();
+          if (!s) return "This field is required";
+          if (!/^[A-Za-z0-9]{6,9}$/.test(s)) return "Enter a valid passport number (6–9 characters)";
+          return null;
+        }
+
+        function validateExpiry(input, opts) {
+          const rawDigits = extractDateDigits(input, 6);
+          const mm = rawDigits.slice(0, 2);
+          const yyyy = rawDigits.slice(2, 6);
+          const hasAny = rawDigits.length > 0;
+          const isComplete = rawDigits.length === 6;
+          const isDirty = !!(input && input.dataset && input.dataset.dirty === "true");
+          const isTouched = !!(input && input.dataset && input.dataset.touched === "true");
+          if (!hasAny) return "This field is required";
+          if (!isComplete) return isDirty && isTouched ? "Please enter a complete date" : null;
+          const dt = parseMY(mm + "/" + yyyy);
+          if (!dt) return "Please enter a valid date";
+          const lastDay = endOfExpiryMonth(dt);
+          if (lastDay < TRAVEL_END) return "Your passport expires before your travel date";
+          return null;
+        }
+
+        function showError(el, msg) {
+          if (!el) return;
+          el.textContent = msg;
+          el.removeAttribute("hidden");
+          el.style.display = "block";
+        }
+
+        function hideError(el) {
+          if (!el) return;
+          el.textContent = "";
+          el.setAttribute("hidden", "");
+          el.style.display = "none";
+        }
+
+        function errorIsVisible(errEl) {
+          return errEl && !errEl.hasAttribute("hidden");
+        }
+
+        function getDateMaskStructure(maskType) {
+          if (maskType === "mmyyyy") {
+            return { editable: [0, 1, 3, 4, 5, 6], separators: [2], maxDigits: 6 };
+          }
+          return { editable: [0, 1, 3, 4, 6, 7, 8, 9], separators: [2, 5], maxDigits: 8 };
+        }
+
+        function createEmptySlots(maskType) {
+          const structure = getDateMaskStructure(maskType);
+          const len = maskType === "mmyyyy" ? 7 : 10;
+          const slots = new Array(len).fill("");
+          structure.separators.forEach((idx) => (slots[idx] = "/"));
+          return slots;
+        }
+
+        function parseSlotsFromValue(value, maskType) {
+          const slots = createEmptySlots(maskType);
+          const raw = String(value || "");
+          const parts = raw.split("/");
+          if (maskType === "mmyyyy") {
+            if (parts.length > 1) {
+              const mm = String(parts[0] || "").replace(/\D/g, "").slice(0, 2);
+              const yyyy = String(parts[1] || "").replace(/\D/g, "").slice(0, 4);
+              if (mm[0]) slots[0] = mm[0];
+              if (mm[1]) slots[1] = mm[1];
+              if (yyyy[0]) slots[3] = yyyy[0];
+              if (yyyy[1]) slots[4] = yyyy[1];
+              if (yyyy[2]) slots[5] = yyyy[2];
+              if (yyyy[3]) slots[6] = yyyy[3];
+              return slots;
+            }
+            const digits = raw.replace(/\D/g, "").slice(0, 6);
+            getDateMaskStructure(maskType).editable.forEach((slotIdx, i) => {
+              if (digits[i]) slots[slotIdx] = digits[i];
+            });
+            return slots;
+          }
+          if (parts.length > 1) {
+            const dd = String(parts[0] || "").replace(/\D/g, "").slice(0, 2);
+            const mm = String(parts[1] || "").replace(/\D/g, "").slice(0, 2);
+            const yyyy = String(parts[2] || "").replace(/\D/g, "").slice(0, 4);
+            if (dd[0]) slots[0] = dd[0];
+            if (dd[1]) slots[1] = dd[1];
+            if (mm[0]) slots[3] = mm[0];
+            if (mm[1]) slots[4] = mm[1];
+            if (yyyy[0]) slots[6] = yyyy[0];
+            if (yyyy[1]) slots[7] = yyyy[1];
+            if (yyyy[2]) slots[8] = yyyy[2];
+            if (yyyy[3]) slots[9] = yyyy[3];
+            return slots;
+          }
+          const digits = raw.replace(/\D/g, "").slice(0, 8);
+          getDateMaskStructure(maskType).editable.forEach((slotIdx, i) => {
+            if (digits[i]) slots[slotIdx] = digits[i];
+          });
+          return slots;
+        }
+
+        function renderSlots(maskType, slots) {
+          const out = [];
+          const caretPosBySlot = {};
+          const digitSpans = [];
+          let pos = 0;
+          const putSlot = (slotIdx) => {
+            caretPosBySlot[slotIdx] = pos;
+            const ch = slots[slotIdx];
+            if (ch) {
+              out.push(ch);
+              digitSpans.push({ slot: slotIdx, start: pos, end: pos + 1 });
+              pos += 1;
+            }
+          };
+          if (maskType === "mmyyyy") {
+            const mm = !!(slots[0] || slots[1]);
+            const yyyy = !!(slots[3] || slots[4] || slots[5] || slots[6]);
+            if (!mm && !yyyy) return { value: "", caretPosBySlot, digitSpans };
+            putSlot(0);
+            putSlot(1);
+            if (mm || yyyy) {
+              out.push("/");
+              pos += 1;
+            }
+            putSlot(3);
+            putSlot(4);
+            putSlot(5);
+            putSlot(6);
+            return { value: out.join(""), caretPosBySlot, digitSpans };
+          }
+          const day = !!(slots[0] || slots[1]);
+          const month = !!(slots[3] || slots[4]);
+          const year = !!(slots[6] || slots[7] || slots[8] || slots[9]);
+          if (!day && !month && !year) return { value: "", caretPosBySlot, digitSpans };
+          putSlot(0);
+          putSlot(1);
+          if (day || month || year) {
+            out.push("/");
+            pos += 1;
+          }
+          putSlot(3);
+          putSlot(4);
+          if (year) {
+            out.push("/");
+            pos += 1;
+          }
+          putSlot(6);
+          putSlot(7);
+          putSlot(8);
+          putSlot(9);
+          return { value: out.join(""), caretPosBySlot, digitSpans };
+        }
+
+        function setupDateInput(input, maxLen, maskType) {
+          if (!input) return;
+          const structure = getDateMaskStructure(maskType);
+          const editable = structure.editable;
+          const nextEditable = (slotIdx) => {
+            const i = editable.indexOf(slotIdx);
+            return i >= 0 && i < editable.length - 1 ? editable[i + 1] : slotIdx;
+          };
+          const firstEditable = editable[0];
+          const lastEditable = editable[editable.length - 1];
+
+          const getSlots = () => {
+            if (!Array.isArray(input._dateSlots)) input._dateSlots = parseSlotsFromValue(input.value, maskType);
+            return input._dateSlots;
+          };
+
+          const emitInternalInput = (el) => {
+            el._skipDateInputNormalize = true;
+            el.dispatchEvent(new Event("input"));
+          };
+
+          const applyRender = (preferredSlot, placeAfterSlot) => {
+            const slots = getSlots();
+            const view = renderSlots(maskType, slots);
+            input.value = view.value;
+            let slotForCaret = preferredSlot;
+            if (!editable.includes(slotForCaret)) {
+              slotForCaret = view.value ? firstEditable : 0;
+            }
+            let caret = view.caretPosBySlot[slotForCaret];
+            if (typeof caret !== "number") {
+              const fallback = editable.find((s) => typeof view.caretPosBySlot[s] === "number");
+              caret = typeof fallback === "number" ? view.caretPosBySlot[fallback] : view.value.length;
+            }
+            if (placeAfterSlot && typeof view.caretPosBySlot[slotForCaret] === "number" && slots[slotForCaret]) {
+              caret = view.caretPosBySlot[slotForCaret] + 1;
+            }
+            input.setSelectionRange(caret, caret);
+            return view;
+          };
+
+          const slotAtCaret = (caret, strategy) => {
+            const slots = getSlots();
+            const view = renderSlots(maskType, slots);
+            if (!view.value) return firstEditable;
+            if (strategy === "backspace") {
+              const prev = view.digitSpans.filter((d) => d.end <= caret).pop();
+              return prev ? prev.slot : firstEditable;
+            }
+            const byPos = editable.find((s) => (view.caretPosBySlot[s] || 0) >= caret);
+            return typeof byPos === "number" ? byPos : lastEditable;
+          };
+
+          input.addEventListener("keydown", function (e) {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            if (["Tab", "Enter", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
+              return;
+            }
+            if (e.key === "/") {
+              e.preventDefault();
+              return;
+            }
+            const isDigit = /^\d$/.test(e.key);
+            const isDeleteKey = e.key === "Backspace" || e.key === "Delete";
+            if (!isDigit && !isDeleteKey) {
+              e.preventDefault();
+              return;
+            }
+            const slots = getSlots();
+            const start = this.selectionStart || 0;
+            const end = this.selectionEnd || start;
+            if (isDigit) {
+              e.preventDefault();
+              if (end > start) {
+                editable.forEach((slotIdx) => {
+                  const slotPos = renderSlots(maskType, slots).caretPosBySlot[slotIdx];
+                  if (typeof slotPos === "number" && slotPos >= start && slotPos < end) slots[slotIdx] = "";
+                });
+              }
+              const target = slotAtCaret(start, "insert");
+              slots[target] = e.key;
+              this._dateSlots = slots;
+              const next = nextEditable(target);
+              applyRender(next, next === target);
+              emitInternalInput(this);
+              if (this.dataset.dirty === "true") this.dispatchEvent(new Event("validate"));
+              return;
+            }
+
+            e.preventDefault();
+            if (e.key === "Backspace") {
+              if (end > start) {
+                editable.forEach((slotIdx) => {
+                  const slotPos = renderSlots(maskType, slots).caretPosBySlot[slotIdx];
+                  if (typeof slotPos === "number" && slotPos >= start && slotPos < end) slots[slotIdx] = "";
+                });
+                this._dateSlots = slots;
+                applyRender(slotAtCaret(start, "insert"));
+                emitInternalInput(this);
+                if (this.dataset.dirty === "true") this.dispatchEvent(new Event("validate"));
+                return;
+              }
+              if (start === 0) return;
+              const target = slotAtCaret(start, "backspace");
+              slots[target] = "";
+              this._dateSlots = slots;
+              applyRender(target);
+              emitInternalInput(this);
+              if (this.dataset.dirty === "true") this.dispatchEvent(new Event("validate"));
+              return;
+            }
+            const target = slotAtCaret(start, "insert");
+            slots[target] = "";
+            this._dateSlots = slots;
+            applyRender(target);
+            emitInternalInput(this);
+            if (this.dataset.dirty === "true") this.dispatchEvent(new Event("validate"));
+          });
+
+          input.addEventListener("paste", function (e) {
+            e.preventDefault();
+            const text = (e.clipboardData && e.clipboardData.getData("text")) || "";
+            const digits = text.replace(/\D/g, "").slice(0, structure.maxDigits);
+            if (!digits) return;
+            const slots = getSlots();
+            const start = this.selectionStart || 0;
+            const target = slotAtCaret(start, "insert");
+            const startIdx = editable.indexOf(target);
+            for (let i = 0; i < digits.length && startIdx + i < editable.length; i++) {
+              slots[editable[startIdx + i]] = digits[i];
+            }
+            this._dateSlots = slots;
+            const endIdx = Math.min(startIdx + digits.length, editable.length - 1);
+            const endSlot = editable[endIdx];
+            applyRender(endSlot, endSlot === lastEditable);
+            emitInternalInput(this);
+            if (this.dataset.dirty === "true") this.dispatchEvent(new Event("validate"));
+          });
+
+          input.addEventListener("input", function () {
+            if (this._skipDateInputNormalize) {
+              this._skipDateInputNormalize = false;
+              return;
+            }
+            if (this._applyingMaskInput) return;
+            this._dateSlots = parseSlotsFromValue(this.value, maskType);
+            this._applyingMaskInput = true;
+            applyRender(slotAtCaret(this.selectionStart || 0, "insert"));
+            this._applyingMaskInput = false;
+          });
+        }
+
+        function maskDobInput(input) {
+          setupDateInput(input, 8, "ddmmyyyy");
+        }
+
+        function maskExpiryInput(input) {
+          setupDateInput(input, 6, "mmyyyy");
+        }
+
+        function buildFormHTML(index, type, childAge) {
+          const prefix = "t" + index;
+          const floatShell = function (forId, label, innerInput) {
+            return (
+              '<div class="ff-float">' +
+              '<label class="ff-float__label" for="' +
+              forId +
+              '">' +
+              label +
+              '</label>' +
+              '<div class="ff-float__inner">' +
+              innerInput +
+              "</div></div>"
+            );
+          };
+          return (
+            '<form class="ff-traveller-form" novalidate>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-profile",
+              "Who's flying?",
+              '<select class="ff-float__input ff-float__select" id="' +
+                prefix +
+                '-profile" name="travellerProfile">' +
+                '<option value="" selected>Select passenger</option>' +
+                '<option value="new">New passenger</option>' +
+                '<option value="profile-1">Aarav Sharma</option>' +
+                '<option value="profile-2">Ishita Taak</option>' +
+                '<option value="profile-3">Meera Nair</option></select>'
+            ) +
+            "</div>" +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-first",
+              "First name",
+              '<input class="ff-float__input" id="' +
+                prefix +
+                '-first" name="first" type="text" autocomplete="given-name" />'
+            ) +
+            '<p class="ds-hint">Use the spelling as on your travel document</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-first-err" hidden></div></div>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-last",
+              "Last name",
+              '<input class="ff-float__input" id="' +
+                prefix +
+                '-last" name="last" type="text" autocomplete="family-name" />'
+            ) +
+            '<p class="ds-hint">Use the spelling as on your travel document</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-last-err" hidden></div></div>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-gender",
+              "Gender",
+              '<select class="ff-float__input ff-float__select" id="' +
+                prefix +
+                '-gender" name="gender" autocomplete="sex">' +
+                '<option value="">Select</option>' +
+                '<option value="male">Male</option>' +
+                '<option value="female">Female</option>' +
+                '<option value="trans">Trans</option></select>'
+            ) +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-gender-err" hidden></div></div>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-dob",
+              "Date of birth (DD/MM/YYYY)",
+              '<input class="ff-float__input" id="' +
+                prefix +
+                '-dob" name="dob" type="text" data-mask-type="ddmmyyyy" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10" />'
+            ) +
+            '<p class="ds-hint">Use the one on your travel document</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-dob-err" hidden></div></div>' +
+            '<div class="ff-field ff-field--doc">' +
+            floatShell(
+              prefix + "-doc",
+              "Travel document number",
+              '<input class="ff-float__input" id="' + prefix + '-doc" name="doc" type="text" autocomplete="off" />'
+            ) +
+            '<p class="ds-hint">Enter exactly as shown, e.g. A1234567</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-doc-err" hidden></div></div>' +
+            '<div class="ff-field ff-country-field">' +
+            floatShell(
+              prefix + "-country-input",
+              "Country of issue",
+              '<div class="ff-country-wrap">' +
+                '<input class="ff-float__input" id="' +
+                prefix +
+                '-country-input" type="text" role="combobox" aria-expanded="false" aria-haspopup="listbox" ' +
+                'aria-controls="' +
+                prefix +
+                '-country-list" autocomplete="off" value="India" />' +
+                '<div class="ff-country-panel" id="' +
+                prefix +
+                '-country-list" role="listbox" hidden></div></div>'
+            ) +
+            '<p class="ds-hint">Country of your passport</p></div>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-exp",
+              "Expiry date (MM/YYYY)",
+              '<input class="ff-float__input" id="' +
+                prefix +
+                '-exp" name="expiry" type="text" data-mask-type="mmyyyy" placeholder="MM/YYYY" inputmode="numeric" maxlength="7" />'
+            ) +
+            '<p class="ds-hint">Must be valid on your travel date (1 May 2026)</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-exp-err" hidden></div></div>' +
+            '<div class="ff-field">' +
+            '<label class="ff-check">' +
+            '<input type="checkbox" id="' +
+            prefix +
+            '-ff-add" name="ffAdd" />' +
+            "<span>Add frequent flyer number</span>" +
+            "</label></div>" +
+            '<div class="ff-ff-extra" id="' +
+            prefix +
+            '-ff-extra" hidden>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-ff-airline",
+              "Airline",
+              '<select class="ff-float__input ff-float__select" id="' +
+                prefix +
+                '-ff-airline" name="ffAirline">' +
+                '<option value="">Select airline</option>' +
+                '<option value="indigo">IndiGo</option>' +
+                '<option value="airindia">Air India</option>' +
+                '<option value="vistara">Vistara</option>' +
+                '<option value="spicejet">SpiceJet</option>' +
+                '<option value="akasa">Akasa Air</option></select>'
+            ) +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-ff-airline-err" hidden></div></div>' +
+            '<div class="ff-field">' +
+            floatShell(
+              prefix + "-ff-number",
+              "Membership number",
+              '<input class="ff-float__input" id="' + prefix + '-ff-number" name="ffNumber" type="text" autocomplete="off" />'
+            ) +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-ff-number-err" hidden></div></div></div>' +
+            '<div class="ff-field"><label class="ff-check"><input type="checkbox" id="' +
+            prefix +
+            '-save-details" name="saveDetails" checked /><span>Save as traveller profile</span></label></div>' +
+            '<div class="ff-save-row"><button type="submit" class="ds-btn-primary">Save traveller</button></div></form>'
+          );
+        }
+
+        function wireCountryField(card, index) {
+          const prefix = "t" + index;
+          const input = card.querySelector("#" + prefix + "-country-input");
+          const panel = card.querySelector("#" + prefix + "-country-list");
+          if (!input || !panel) return;
+
+          function renderList(filter) {
+            panel.innerHTML = "";
+            const q = (filter || "").toLowerCase();
+            COUNTRIES.filter((c) => c.toLowerCase().includes(q)).forEach((country) => {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.role = "option";
+              btn.textContent = country;
+              btn.addEventListener("click", function () {
+                input.value = country;
+                panel.classList.remove("is-open");
+                panel.hidden = true;
+                input.setAttribute("aria-expanded", "false");
+              });
+              panel.appendChild(btn);
+            });
+          }
+
+          function openPanel() {
+            panel.classList.add("is-open");
+            panel.hidden = false;
+            input.setAttribute("aria-expanded", "true");
+          }
+
+          input.addEventListener("focus", function () {
+            openPanel();
+            renderList(input.value);
+          });
+
+          input.addEventListener("click", function () {
+            openPanel();
+            renderList(input.value);
+          });
+
+          input.addEventListener("input", function () {
+            openPanel();
+            renderList(input.value);
+          });
+
+          document.addEventListener("click", function (e) {
+            if (!card.contains(e.target)) {
+              panel.classList.remove("is-open");
+              panel.hidden = true;
+              input.setAttribute("aria-expanded", "false");
+            }
+          });
+        }
+
+        function ensureCollapsedSummaryRow(card) {
+          if (card.querySelector(".ff-traveller-summary")) {
+            return card.querySelector(".ff-traveller-summary");
+          }
+          const collapsed = card.querySelector(".ff-traveller__collapsed");
+          if (!collapsed) return null;
+          const ageCaption = travellerSummaryAgeCaption(card);
+          collapsed.innerHTML =
+            '<div class="ff-traveller-summary">' +
+            '<div class="ff-traveller-summary__row ff-traveller-summary__row--head">' +
+            '<p class="ff-traveller-summary__name" data-summary-name></p>' +
+            '<div class="ff-traveller-summary__tags">' +
+            '<span class="ff-traveller-summary__age" data-summary-age>' +
+            ageCaption +
+            '</span><svg class="ff-traveller-summary__status-tick" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5t127 85.5q54 54 85.5 127T880-480q0 82-31.5 155T763-197q-54 54-127 85.5T480-80Zm-42-246 226-226-56-56-170 170-84-84-56 56 140 140Z"/></svg></div></div>' +
+            '<p class="ff-traveller-summary__meta" data-summary-meta></p>' +
+            '<p class="ff-traveller-summary__doc-label">Travel Document:</p>' +
+            '<div class="ff-traveller-summary__row ff-traveller-summary__row--doc">' +
+            '<p class="ff-traveller-summary__doc" data-summary-doc></p>' +
+            '<button type="button" class="ff-add-details" data-add-details><span class="ff-add-details__label">Edit</span><svg class="ff-add-details__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>' +
+            "</div>" +
+            '<div class="ff-traveller-summary__row ff-traveller-summary__row--ff">' +
+            '<p class="ff-traveller-summary__ff" data-summary-ff></p>' +
+            '<button type="button" class="ff-add-details" data-add-details><span class="ff-add-details__label">Edit</span><svg class="ff-add-details__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></div></div>';
+          collapsed.classList.remove("ff-traveller__collapsed--pending");
+          return card.querySelector(".ff-traveller-summary");
+        }
+
+        function wireTravellerCard(card, index) {
+          const type = card.dataset.type;
+          const selectedChildAge = card.dataset.childAge;
+          const expandedEl = card.querySelector(".ff-traveller__expanded");
+          const prefix = "t" + index;
+
+          if (index > 1 && expandedEl && expandedEl.children.length === 0) {
+            expandedEl.innerHTML = buildFormHTML(index, type, card.dataset.childAge);
+          }
+
+          const form = card.querySelector(".ff-traveller-form");
+          if (!form) return;
+
+          const profileSelect = form.querySelector("#" + prefix + "-profile");
+          const first = form.querySelector("#" + prefix + "-first");
+          const last = form.querySelector("#" + prefix + "-last");
+          const genderSelect = form.querySelector("#" + prefix + "-gender");
+          const dob = form.querySelector("#" + prefix + "-dob");
+          const doc = form.querySelector("#" + prefix + "-doc");
+          const exp = form.querySelector("#" + prefix + "-exp");
+          const ffAdd = form.querySelector("#" + prefix + "-ff-add");
+          const ffExtra = form.querySelector("#" + prefix + "-ff-extra");
+          const ffAirline = form.querySelector("#" + prefix + "-ff-airline");
+          const ffNumber = form.querySelector("#" + prefix + "-ff-number");
+          const saveDetails = form.querySelector("#" + prefix + "-save-details");
+          const ffAddField = ffAdd ? ffAdd.closest(".ff-field") : null;
+          const err = {
+            first: form.querySelector("#" + prefix + "-first-err"),
+            last: form.querySelector("#" + prefix + "-last-err"),
+            gender: form.querySelector("#" + prefix + "-gender-err"),
+            dob: form.querySelector("#" + prefix + "-dob-err"),
+            doc: form.querySelector("#" + prefix + "-doc-err"),
+            exp: form.querySelector("#" + prefix + "-exp-err"),
+            ffAirline: form.querySelector("#" + prefix + "-ff-airline-err"),
+            ffNumber: form.querySelector("#" + prefix + "-ff-number-err"),
+          };
+
+          const fieldState = {
+            first: { touched: false, dirty: false },
+            last: { touched: false, dirty: false },
+            gender: { touched: false, dirty: false },
+            dob: { touched: false, dirty: false },
+            doc: { touched: false, dirty: false },
+            exp: { touched: false, dirty: false },
+            ffAirline: { touched: false, dirty: false },
+            ffNumber: { touched: false, dirty: false },
+          };
+
+          function clearFrequentFlyerErrors() {
+            hideError(err.ffAirline);
+            hideError(err.ffNumber);
+            setShellError(ffAirline, false);
+            setShellError(ffNumber, false);
+          }
+
+          if (ffAdd && ffExtra) {
+            const syncFrequentFlyerFields = function () {
+              ffExtra.hidden = !ffAdd.checked;
+              if (!ffAdd.checked) {
+                clearFrequentFlyerErrors();
+                fieldState.ffAirline.touched = fieldState.ffAirline.dirty = false;
+                fieldState.ffNumber.touched = fieldState.ffNumber.dirty = false;
+              }
+            };
+            syncFrequentFlyerFields();
+            ffAdd.addEventListener("change", syncFrequentFlyerFields);
+          }
+
+          if (ffAirline) {
+            ffAirline.addEventListener("change", function () {
+              fieldState.ffAirline.dirty = true;
+              if (!ffAdd || !ffAdd.checked) return;
+              const hasValue = !!String(ffAirline.value || "").trim();
+              if (hasValue) {
+                hideError(err.ffAirline);
+                setShellError(ffAirline, false);
+              }
+            });
+          }
+
+          if (ffNumber) {
+            ffNumber.addEventListener("input", function () {
+              fieldState.ffNumber.dirty = true;
+              if (!ffAdd || !ffAdd.checked) return;
+              const hasValue = !!String(ffNumber.value || "").trim();
+              if (hasValue) {
+                hideError(err.ffNumber);
+                setShellError(ffNumber, false);
+              }
+            });
+          }
+
+          function syncProfileVisibility() {
+            if (!profileSelect) return;
+            const hasSelection = !!String(profileSelect.value || "").trim();
+            const selectedValue = String(profileSelect.value || "");
+            const isSavedProfile = selectedValue.indexOf("profile-") === 0;
+            const selectedProfile = DUMMY_TRAVELLER_PROFILES[selectedValue];
+            const hasSavedProfileFfData =
+              !!selectedProfile &&
+              !!selectedProfile.ffEnabled &&
+              !!String(selectedProfile.ffNumber || "").trim() &&
+              !!String(selectedProfile.ffAirline || "").trim();
+            Array.from(form.children).forEach((child) => {
+              if (!(child instanceof HTMLElement)) return;
+              if (child.contains(profileSelect)) {
+                child.hidden = false;
+                return;
+              }
+              if (ffAddField && child === ffAddField) {
+                child.hidden = !hasSelection;
+                return;
+              }
+              if (ffExtra && child === ffExtra) {
+                child.hidden = !hasSelection || !(ffAdd && ffAdd.checked);
+                return;
+              }
+              if (saveDetails && child.contains(saveDetails)) {
+                child.hidden = !hasSelection || isSavedProfile;
+                return;
+              }
+              child.hidden = !hasSelection;
+            });
+          }
+
+          if (profileSelect) {
+            profileSelect.addEventListener("change", function () {
+              const selectedValue = String(profileSelect.value || "");
+              const selected = DUMMY_TRAVELLER_PROFILES[selectedValue];
+              if (selectedValue === "new") {
+                if (first) {
+                  first.value = "";
+                  first.dispatchEvent(new Event("input"));
+                }
+                if (last) {
+                  last.value = "";
+                  last.dispatchEvent(new Event("input"));
+                }
+                if (genderSelect) {
+                  genderSelect.value = "";
+                  genderSelect.dispatchEvent(new Event("change"));
+                }
+                if (dob) {
+                  dob.value = "";
+                  dob.dispatchEvent(new Event("input"));
+                }
+                if (doc) {
+                  doc.value = "";
+                  doc.dispatchEvent(new Event("input"));
+                }
+                if (countryInput) {
+                  countryInput.value = "";
+                  countryInput.dispatchEvent(new Event("input"));
+                  countryInput.dispatchEvent(new Event("change"));
+                }
+                if (exp) {
+                  exp.value = "";
+                  exp.dispatchEvent(new Event("input"));
+                }
+                if (ffAdd) {
+                  ffAdd.checked = false;
+                  ffAdd.dispatchEvent(new Event("change"));
+                }
+                if (ffAirline) {
+                  ffAirline.value = "";
+                  ffAirline.dispatchEvent(new Event("change"));
+                }
+                if (ffNumber) {
+                  ffNumber.value = "";
+                  ffNumber.dispatchEvent(new Event("input"));
+                }
+                return;
+              }
+              if (!selected) return;
+              if (first) {
+                first.value = selected.first || "";
+                first.dispatchEvent(new Event("input"));
+              }
+              if (last) {
+                last.value = selected.last || "";
+                last.dispatchEvent(new Event("input"));
+              }
+              if (genderSelect) {
+                genderSelect.value = selected.gender || "";
+                genderSelect.dispatchEvent(new Event("change"));
+              }
+              if (dob) {
+                dob.value = selected.dob || "";
+                dob.dispatchEvent(new Event("input"));
+              }
+              if (doc) {
+                doc.value = selected.doc || "";
+                doc.dispatchEvent(new Event("input"));
+              }
+              if (countryInput) {
+                countryInput.value = selected.country || "";
+                countryInput.dispatchEvent(new Event("input"));
+                countryInput.dispatchEvent(new Event("change"));
+              }
+              if (exp) {
+                exp.value = selected.expiry || "";
+                exp.dispatchEvent(new Event("input"));
+              }
+              const hasFrequentFlierData =
+                !!selected.ffEnabled &&
+                !!String(selected.ffNumber || "").trim() &&
+                !!String(selected.ffAirline || "").trim();
+              if (ffAdd) {
+                ffAdd.checked = hasFrequentFlierData;
+                ffAdd.dispatchEvent(new Event("change"));
+              }
+              if (ffAirline) {
+                ffAirline.value = hasFrequentFlierData ? selected.ffAirline || "" : "";
+                ffAirline.dispatchEvent(new Event("change"));
+              }
+              if (ffNumber) {
+                ffNumber.value = hasFrequentFlierData ? selected.ffNumber || "" : "";
+                ffNumber.dispatchEvent(new Event("input"));
+              }
+            });
+            profileSelect.addEventListener("change", syncProfileVisibility);
+          }
+          syncProfileVisibility();
+
+          if (genderSelect) {
+            genderSelect.addEventListener("change", function () {
+              fieldState.gender.dirty = true;
+              if (errorIsVisible(err.gender)) {
+                const msg = validateGender(genderSelect);
+                if (msg) {
+                  showError(err.gender, msg);
+                  setShellError(genderSelect, true);
+                } else {
+                  hideError(err.gender);
+                  setShellError(genderSelect, false);
+                }
+              } else {
+                hideError(err.gender);
+                setShellError(genderSelect, false);
+              }
+            });
+
+            genderSelect.addEventListener("blur", function () {
+              blurTextField(genderSelect, fieldState.gender, err.gender, function () {
+                return validateGender(genderSelect);
+              });
+            });
+          }
+
+          maskDobInput(dob);
+          maskExpiryInput(exp);
+
+          function setShellError(input, has) {
+            if (!input) return;
+            const shell = input.closest(".ff-float__inner");
+            if (shell) {
+              if (has) shell.classList.add("is-error");
+              else shell.classList.remove("is-error");
+            }
+            input.classList.remove("is-error");
+          }
+
+          function showDobAgeMismatchError(el, actualAge, selectedAge) {
+            if (!el) return;
+            el.innerHTML =
+              "This makes them " +
+              String(actualAge) +
+              " yrs on the travel date (1 May 2026); earlier you selected " +
+              String(selectedAge) +
+              ' yrs. <button type="button" class="ff-inline-edit-search" data-edit-search>Edit search?</button>';
+            el.removeAttribute("hidden");
+            el.style.display = "block";
+          }
+
+          function applyDobValidationResult(msg) {
+            if (msg && msg.indexOf("__CHILD_AGE_MISMATCH__:") === 0) {
+              const parts = msg.split(":");
+              const actualAge = parts[1] || "";
+              const selectedAge = parts[2] || "";
+              showDobAgeMismatchError(err.dob, actualAge, selectedAge);
+              setShellError(dob, true);
+              return true;
+            }
+            if (msg) {
+              showError(err.dob, msg);
+              setShellError(dob, true);
+              return true;
+            }
+            hideError(err.dob);
+            setShellError(dob, false);
+            return false;
+          }
+
+          /** Airlines-style names: force uppercase as the user types or leaves the field. */
+          function applyNameUppercase(input) {
+            if (!input) return;
+            const v = input.value;
+            const upper = v.toUpperCase();
+            if (v === upper) return;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            input.value = upper;
+            if (typeof start === "number" && typeof end === "number") {
+              input.setSelectionRange(start, end);
+            }
+          }
+
+          function blurTextField(input, state, errEl, validateFn) {
+            state.touched = true;
+            const empty = Array.isArray(input._segments)
+              ? input._segments.every((seg) => !String(seg || "").length)
+              : !String(input.value || "").trim();
+            if (empty && !state.dirty) {
+              hideError(errEl);
+              setShellError(input, false);
+              return;
+            }
+            const msg = validateFn();
+            if (msg) {
+              showError(errEl, msg);
+              setShellError(input, true);
+            } else {
+              hideError(errEl);
+              setShellError(input, false);
+            }
+          }
+
+          first.addEventListener("input", function () {
+            applyNameUppercase(first);
+            fieldState.first.dirty = true;
+            const fv = (first.value || "").trim();
+            if (fv.length > 0 && !namePartRe.test(fv)) {
+              showError(err.first, nameCharsetErr);
+              setShellError(first, true);
+              return;
+            }
+            if (!errorIsVisible(err.first)) return;
+            const msg = validateFirstName(first.value, last.value);
+            if (msg) {
+              showError(err.first, msg);
+              setShellError(first, true);
+            } else {
+              hideError(err.first);
+              setShellError(first, false);
+            }
+          });
+
+          first.addEventListener("blur", function () {
+            applyNameUppercase(first);
+            blurTextField(first, fieldState.first, err.first, function () {
+              return validateFirstName(first.value, last.value);
+            });
+          });
+
+          last.addEventListener("input", function () {
+            applyNameUppercase(last);
+            fieldState.last.dirty = true;
+            const lv = (last.value || "").trim();
+            if (lv.length > 0 && !namePartRe.test(lv)) {
+              showError(err.last, nameCharsetErr);
+              setShellError(last, true);
+              return;
+            }
+            if (!errorIsVisible(err.last)) return;
+            const msg = validateLastName(first.value, last.value);
+            if (msg) {
+              showError(err.last, msg);
+              setShellError(last, true);
+            } else {
+              hideError(err.last);
+              setShellError(last, false);
+            }
+          });
+
+          last.addEventListener("blur", function () {
+            applyNameUppercase(last);
+            blurTextField(last, fieldState.last, err.last, function () {
+              return validateLastName(first.value, last.value);
+            });
+          });
+
+          dob.addEventListener("input", function () {
+            fieldState.dob.dirty = true;
+            dob.dataset.dirty = "true";
+            if (!errorIsVisible(err.dob)) return;
+            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+          });
+
+          dob.addEventListener("blur", function () {
+            dob.dataset.touched = "true";
+            fieldState.dob.touched = true;
+            const empty = !String(dob.value || "").trim();
+            if (empty && !fieldState.dob.dirty) {
+              hideError(err.dob);
+              setShellError(dob, false);
+              return;
+            }
+            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+          });
+
+          doc.addEventListener("input", function () {
+            fieldState.doc.dirty = true;
+            if (!errorIsVisible(err.doc)) return;
+            const msg = validateDoc(doc.value);
+            if (msg) {
+              showError(err.doc, msg);
+              setShellError(doc, true);
+            } else {
+              hideError(err.doc);
+              setShellError(doc, false);
+            }
+          });
+
+          doc.addEventListener("blur", function () {
+            blurTextField(doc, fieldState.doc, err.doc, function () {
+              return validateDoc(doc.value);
+            });
+          });
+
+          exp.addEventListener("input", function () {
+            fieldState.exp.dirty = true;
+            exp.dataset.dirty = "true";
+            if (!errorIsVisible(err.exp)) return;
+            const msg = validateExpiry(exp);
+            if (msg) {
+              showError(err.exp, msg);
+              setShellError(exp, true);
+            } else {
+              hideError(err.exp);
+              setShellError(exp, false);
+            }
+          });
+
+          exp.addEventListener("blur", function () {
+            exp.dataset.touched = "true";
+            blurTextField(exp, fieldState.exp, err.exp, function () {
+              return validateExpiry(exp, { fromBlur: true });
+            });
+          });
+
+          dob.addEventListener("validate", function () {
+            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+          });
+
+          exp.addEventListener("validate", function () {
+            const msg = validateExpiry(exp);
+            if (msg) {
+              showError(err.exp, msg);
+              setShellError(exp, true);
+            } else {
+              hideError(err.exp);
+              setShellError(exp, false);
+            }
+          });
+
+          function scrollToFirstErrorInCard() {
+            const sequence = [
+              { err: err.first, focusEl: first },
+              { err: err.last, focusEl: last },
+              { err: err.gender, focusEl: genderSelect },
+              { err: err.dob, focusEl: dob },
+              { err: err.doc, focusEl: doc },
+              { err: err.exp, focusEl: exp },
+              { err: err.ffAirline, focusEl: ffAirline },
+              { err: err.ffNumber, focusEl: ffNumber },
+            ];
+            for (let i = 0; i < sequence.length; i++) {
+              const item = sequence[i];
+              if (!errorIsVisible(item.err)) continue;
+              const fieldWrap = item.err.closest(".ff-field");
+              if (fieldWrap) fieldWrap.scrollIntoView({ block: "center", behavior: "smooth" });
+              if (item.focusEl && item.focusEl.focus) {
+                window.setTimeout(function () {
+                  item.focusEl.focus({ preventScroll: true });
+                }, 100);
+              }
+              break;
+            }
+          }
+
+          function resetFieldStateAfterSave() {
+            fieldState.first.touched = fieldState.first.dirty = false;
+            fieldState.last.touched = fieldState.last.dirty = false;
+            fieldState.gender.touched = fieldState.gender.dirty = false;
+            fieldState.dob.touched = fieldState.dob.dirty = false;
+            fieldState.doc.touched = fieldState.doc.dirty = false;
+            fieldState.exp.touched = fieldState.exp.dirty = false;
+            fieldState.ffAirline.touched = fieldState.ffAirline.dirty = false;
+            fieldState.ffNumber.touched = fieldState.ffNumber.dirty = false;
+            delete dob.dataset.dirty;
+            delete exp.dataset.dirty;
+          }
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            applyNameUppercase(first);
+            applyNameUppercase(last);
+
+            fieldState.first.touched = true;
+            fieldState.last.touched = true;
+            fieldState.gender.touched = true;
+            fieldState.dob.touched = true;
+            fieldState.doc.touched = true;
+            fieldState.exp.touched = true;
+            dob.dataset.touched = "true";
+            exp.dataset.touched = "true";
+
+            let bad = false;
+
+            const emptyMsg = "This field is required";
+            const emptyFirstMsg = "This field is required. If no first name type 'FNU'";
+
+            const rawFirst = (first.value || "").trim();
+            const vFirst = rawFirst ? validateFirstName(first.value, last.value) : emptyFirstMsg;
+            if (vFirst) {
+              showError(err.first, vFirst);
+              setShellError(first, true);
+              bad = true;
+            } else {
+              hideError(err.first);
+              setShellError(first, false);
+            }
+
+            const rawLast = (last.value || "").trim();
+            const vLast = rawLast ? validateLastName(first.value, last.value) : emptyMsg;
+            if (vLast) {
+              showError(err.last, vLast);
+              setShellError(last, true);
+              bad = true;
+            } else {
+              hideError(err.last);
+              setShellError(last, false);
+            }
+
+            const rawGender = genderSelect && genderSelect.value;
+            const vGender = rawGender ? validateGender(genderSelect) : emptyMsg;
+            if (vGender) {
+              showError(err.gender, vGender);
+              if (genderSelect) setShellError(genderSelect, true);
+              bad = true;
+            } else {
+              hideError(err.gender);
+              if (genderSelect) setShellError(genderSelect, false);
+            }
+
+            const vDob = validateDob(dob, type, selectedChildAge);
+            if (applyDobValidationResult(vDob)) bad = true;
+
+            const rawDoc = (doc.value || "").trim();
+            const vDoc = rawDoc ? validateDoc(doc.value) : emptyMsg;
+            if (vDoc) {
+              showError(err.doc, vDoc);
+              setShellError(doc, true);
+              bad = true;
+            } else {
+              hideError(err.doc);
+              setShellError(doc, false);
+            }
+
+            const vExp = validateExpiry(exp);
+            if (vExp) {
+              showError(err.exp, vExp);
+              setShellError(exp, true);
+              bad = true;
+            } else {
+              hideError(err.exp);
+              setShellError(exp, false);
+            }
+
+            if (ffAdd && ffAdd.checked) {
+              fieldState.ffAirline.touched = fieldState.ffAirline.dirty = true;
+              fieldState.ffNumber.touched = fieldState.ffNumber.dirty = true;
+
+              const airlineValue = ffAirline ? String(ffAirline.value || "").trim() : "";
+              if (!airlineValue) {
+                showError(err.ffAirline, "Select an airline");
+                setShellError(ffAirline, true);
+                bad = true;
+              } else {
+                hideError(err.ffAirline);
+                setShellError(ffAirline, false);
+              }
+
+              const ffNumberValue = ffNumber ? String(ffNumber.value || "").trim() : "";
+              if (!ffNumberValue) {
+                showError(err.ffNumber, "Enter your frequent flyer number");
+                setShellError(ffNumber, true);
+                bad = true;
+              } else {
+                hideError(err.ffNumber);
+                setShellError(ffNumber, false);
+              }
+            } else {
+              clearFrequentFlyerErrors();
+            }
+
+            if (bad) {
+              scrollToFirstErrorInCard();
+              return;
+            }
+
+            saved[index - 1] = true;
+            resetFieldStateAfterSave();
+            ensureCollapsedSummaryRow(card);
+            fillTravellerSummary(card, form, index);
+            card.classList.add("is-traveller-saved");
+            card.classList.add("is-collapsed");
+
+            const nextIdx = index;
+            if (nextIdx < 4) {
+              const nextCard = document.getElementById("traveller-card-" + (nextIdx + 1));
+              if (nextCard) {
+                nextCard.classList.remove("is-collapsed");
+                const nextAdd = nextCard.querySelector("[data-add-details]");
+                if (nextAdd) nextAdd.disabled = false;
+                if (!nextCard.querySelector(".ff-traveller-form")) {
+                  nextCard.querySelector(".ff-traveller__expanded").innerHTML = buildFormHTML(
+                    nextIdx + 1,
+                    nextCard.dataset.type,
+                    nextCard.dataset.childAge
+                  );
+                  wireTravellerCard(nextCard, nextIdx + 1);
+                }
+              }
+            }
+
+            card.querySelectorAll("[data-add-details]").forEach(function (addBtn) {
+              const label = addBtn.querySelector(".ff-add-details__label");
+              if (label) label.textContent = "Edit";
+            });
+
+            updateAddDetailsState();
+            updateNextButton();
+            updateStickyProgress(saved.filter(Boolean).length);
+          });
+
+          wireCountryField(card, index);
+        }
+
+        function updateAddDetailsState() {
+          document.querySelectorAll(".ff-traveller").forEach((c) => {
+            const idx = +c.dataset.index;
+            const btn = c.querySelector("[data-add-details]");
+            if (!btn) return;
+            if (idx === 1) return;
+            btn.disabled = !saved[idx - 2];
+          });
+        }
+
+        function updateNextButton() {
+          document.getElementById("btn-next").disabled = !saved.every(Boolean);
+        }
+
+        document.querySelector(".wrap").addEventListener("click", function (e) {
+          const btn = e.target.closest("[data-add-details]");
+          if (!btn) return;
+          const card = btn.closest(".ff-traveller");
+          if (!card) return;
+          const idx = +card.dataset.index;
+          if (idx > 1 && !saved[idx - 2]) return;
+          document.querySelectorAll(".ff-traveller").forEach((c) => {
+            if (c !== card && !saved[+c.dataset.index - 1]) {
+              c.classList.add("is-collapsed");
+            }
+          });
+          card.classList.remove("is-collapsed");
+          if (!card.querySelector(".ff-traveller-form")) {
+            card.querySelector(".ff-traveller__expanded").innerHTML = buildFormHTML(
+              idx,
+              card.dataset.type,
+              card.dataset.childAge
+            );
+            wireTravellerCard(card, idx);
+          }
+        });
+
+        wireTravellerCard(document.getElementById("traveller-card-1"), 1);
+        updateAddDetailsState();
+        updateNextButton();
+        updateStickyProgress(saved.filter(Boolean).length);
+      })();
+
+      (function flightDetailsBottomSheet() {
+        /* Set to true when bringing back the flight details bottom sheet in the prototype */
+        var FLIGHT_DETAILS_SHEET_ENABLED = false;
+        if (!FLIGHT_DETAILS_SHEET_ENABLED) return;
+
+        var root = document.getElementById("flight-details-sheet");
+        var openBtn = document.getElementById("btn-flight-details-open");
+        if (!root || !openBtn) return;
+        var panel = root.querySelector(".ff-sheet__panel");
+
+        function openSheet() {
+          root.classList.add("is-open");
+          root.setAttribute("aria-hidden", "false");
+          openBtn.setAttribute("aria-expanded", "true");
+          document.body.classList.add("ff-sheet-open");
+          window.setTimeout(function () {
+            if (panel) panel.focus();
+          }, 320);
+        }
+
+        function closeSheet() {
+          root.classList.remove("is-open");
+          root.setAttribute("aria-hidden", "true");
+          openBtn.setAttribute("aria-expanded", "false");
+          document.body.classList.remove("ff-sheet-open");
+          openBtn.focus();
+        }
+
+        openBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          openSheet();
+        });
+
+        root.querySelectorAll("[data-sheet-close]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            closeSheet();
+          });
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && root.classList.contains("is-open")) {
+            closeSheet();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
