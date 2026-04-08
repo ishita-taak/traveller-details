@@ -915,7 +915,7 @@
       }
 
       .ff-traveller-summary__name {
-        margin: 0 0 var(--space-2);
+        margin: 0;
         font-size: var(--font-size-base);
         font-weight: var(--font-weight-semibold);
         line-height: var(--line-height-heading);
@@ -1649,6 +1649,7 @@
               />
             </div>
           </div>
+          <div class="ds-field-error ff-error" id="contact-phone-err" role="alert" hidden></div>
         </div>
       </section>
 
@@ -1831,6 +1832,7 @@
                       aria-haspopup="listbox"
                       aria-controls="t1-country-list"
                       autocomplete="off"
+                      readonly
                       value="India"
                     />
                     <div class="ff-country-panel" id="t1-country-list" role="listbox" hidden></div>
@@ -1838,6 +1840,7 @@
                 </div>
               </div>
               <p class="ds-hint">Country of your passport</p>
+              <div class="ds-field-error ff-error" id="t1-country-err" hidden></div>
             </div>
             <div class="ff-field">
               <div class="ff-float">
@@ -2009,6 +2012,11 @@
         var wrapE = email && email.closest(".ff-float__inner");
         var emailErr = document.getElementById("contact-email-err");
         var emailBlock = document.getElementById("contact-email-block");
+        var phone = document.getElementById("contact-phone");
+        var wrapP = phone && phone.closest(".ff-float__inner");
+        var phoneErr = document.getElementById("contact-phone-err");
+        var phoneBlock = phone && phone.closest(".ff-float");
+        var phoneCode = document.querySelector(".ff-phone-cc__code");
         var btnNext = document.getElementById("btn-next");
 
         var emailState = {
@@ -2016,23 +2024,28 @@
           dirty: false,
           submitAttempted: false,
         };
+        var phoneState = {
+          touched: false,
+          dirty: false,
+          submitAttempted: false,
+        };
 
-        function showEmailErrorEl(el, msg) {
+        function showFieldErrorEl(el, msg) {
           if (!el) return;
           el.textContent = msg;
           el.removeAttribute("hidden");
           el.style.display = "block";
         }
 
-        function hideEmailErrorEl(el) {
+        function hideFieldErrorEl(el) {
           if (!el) return;
           el.textContent = "";
           el.setAttribute("hidden", "");
           el.style.display = "none";
         }
 
-        function emailErrorIsVisible() {
-          return emailErr && !emailErr.hasAttribute("hidden");
+        function fieldErrorIsVisible(errEl) {
+          return errEl && !errEl.hasAttribute("hidden");
         }
 
         function isValidLocalChar(ch) {
@@ -2058,42 +2071,14 @@
           );
         }
 
-        /** While focused: incomplete but plausibly still typing toward a valid address — suppress errors until blur. */
-        function isEmailMidTypingValidPrefix(v) {
-          var s = String(v != null ? v : "");
-          var i;
-          if (s.trim() === "") return false;
-          if (/\s/.test(s)) return false;
-          var atPos = s.indexOf("@");
-          if (atPos === -1) {
-            for (i = 0; i < s.length; i++) {
-              if (!isValidLocalChar(s.charAt(i))) return false;
-            }
-            return true;
-          }
-          var atCount = (s.match(/@/g) || []).length;
-          if (atPos !== s.lastIndexOf("@") || atCount !== 1) return false;
-          var local = s.slice(0, atPos);
-          var domain = s.slice(atPos + 1);
-          if (local.trim() === "") return false;
-          for (i = 0; i < local.length; i++) {
-            if (!isValidLocalChar(local.charAt(i))) return false;
-          }
-          if (domain.indexOf(".") !== -1) return false;
-          for (i = 0; i < domain.length; i++) {
-            if (!isValidDomainChar(domain.charAt(i))) return false;
-          }
-          return true;
-        }
-
         function applyEmailValidationResult(msg) {
           if (!email || !wrapE || !emailErr) return;
           if (msg) {
-            showEmailErrorEl(emailErr, msg);
+            showFieldErrorEl(emailErr, msg);
             wrapE.classList.add("is-error");
             email.setAttribute("aria-invalid", "true");
           } else {
-            hideEmailErrorEl(emailErr);
+            hideFieldErrorEl(emailErr);
             wrapE.classList.remove("is-error");
             email.setAttribute("aria-invalid", "false");
           }
@@ -2104,42 +2089,27 @@
           if (v.trim() === "") {
             return "Email address is required";
           }
-          if (v.indexOf("@") === -1) {
-            return "Please include an '@' in the email address";
+          if (/\s/.test(v)) {
+            return "Email address cannot contain spaces";
+          }
+          var atCount = (v.match(/@/g) || []).length;
+          if (atCount > 1) {
+            return "Email address can only contain one '@'";
+          }
+          if (atCount === 0) {
+            return "Include an '@' in the email address";
           }
           var at = v.indexOf("@");
           var local = v.slice(0, at);
           var domain = v.slice(at + 1);
           if (local.trim() === "") {
-            return "Please enter the part before '@'";
+            return "Enter the part before '@'";
           }
           if (domain.trim() === "") {
-            return "Please enter a domain after '@'";
-          }
-          if (domain.indexOf(".") === -1) {
-            return "Please enter a valid domain (e.g. gmail.com)";
-          }
-          if (v.endsWith(".")) {
-            return "Email address cannot end with a dot";
-          }
-          if (/\s/.test(v)) {
-            return "Email address cannot contain spaces";
-          }
-
-          var lastDotInDomain = domain.lastIndexOf(".");
-          var tld = lastDotInDomain === -1 ? "" : domain.slice(lastDotInDomain + 1);
-          if (tld.length < 2) {
-            return "Please enter a valid domain extension (e.g. .com, .in)";
-          }
-          if (tld.length > 6) {
-            return "Please enter a valid domain extension (e.g. .com, .org)";
+            return "Enter a domain after '@'";
           }
           if (/\.\./.test(v)) {
             return "Email address cannot contain consecutive dots";
-          }
-          var atCount = (v.match(/@/g) || []).length;
-          if (atCount !== 1) {
-            return "Email address can only contain one '@'";
           }
           var i;
           for (i = 0; i < local.length; i++) {
@@ -2157,6 +2127,27 @@
               return "Email address contains an invalid character";
             }
           }
+          if (domain.indexOf(".") === -1) {
+            return "Enter a valid domain (e.g. gmail.com)";
+          }
+          var lastDotInDomain = domain.lastIndexOf(".");
+          var tld = lastDotInDomain === -1 ? "" : domain.slice(lastDotInDomain + 1);
+          if (tld.length < 2) {
+            return "Enter a valid domain extension (e.g. .com, .in)";
+          }
+          if (tld.length > 6) {
+            return "Enter a valid domain extension (e.g., .com, .org)";
+          }
+          var labels = domain.split(".");
+          for (i = 0; i < labels.length; i++) {
+            var lab = labels[i];
+            if (lab.length === 0) {
+              continue;
+            }
+            if (lab.charAt(0) === "-" || lab.charAt(lab.length - 1) === "-") {
+              return "Enter a valid email domain";
+            }
+          }
           for (i = 0; i < domain.length; i++) {
             var dch = domain.charAt(i);
             var isDomOk =
@@ -2169,34 +2160,90 @@
               return "Email address contains an invalid character after '@'";
             }
           }
-          var labels = domain.split(".");
-          for (i = 0; i < labels.length; i++) {
-            var lab = labels[i];
-            if (lab.length === 0) {
-              continue;
-            }
-            if (lab.charAt(0) === "-" || lab.charAt(lab.length - 1) === "-") {
-              return "Please enter a valid email domain";
-            }
+          if (v.endsWith(".")) {
+            return "Email address cannot end with a dot";
           }
-
           return null;
         }
 
         function runEmailInputValidation() {
           if (!email || !wrapE || !emailErr) return;
           var msg = validateEmailBlur(email.value);
-          if (msg === null) {
-            applyEmailValidationResult(null);
-            return;
-          }
-          if (document.activeElement === email && isEmailMidTypingValidPrefix(email.value)) {
-            hideEmailErrorEl(emailErr);
-            wrapE.classList.remove("is-error");
-            email.setAttribute("aria-invalid", "false");
-            return;
-          }
           applyEmailValidationResult(msg);
+        }
+
+        function applyPhoneValidationResult(msg) {
+          if (!phone || !wrapP || !phoneErr) return;
+          if (msg) {
+            showFieldErrorEl(phoneErr, msg);
+            wrapP.classList.add("is-error");
+            phone.setAttribute("aria-invalid", "true");
+          } else {
+            hideFieldErrorEl(phoneErr);
+            wrapP.classList.remove("is-error");
+            phone.setAttribute("aria-invalid", "false");
+          }
+        }
+
+        function phoneDigitsOnly(value) {
+          return String(value != null ? value : "").replace(/[\s-]/g, "");
+        }
+
+        function isIndiaCodeSelected() {
+          var codeText = phoneCode ? String(phoneCode.textContent || "").trim() : "";
+          return codeText === "+91";
+        }
+
+        function validatePhoneBlur(value) {
+          var raw = String(value != null ? value : "");
+          var digits = phoneDigitsOnly(raw);
+          if (digits.length === 0) {
+            return "Phone number is required";
+          }
+          if (/[A-Za-z]/.test(raw)) {
+            return "Phone numbers can only contain digits";
+          }
+          if (/[^0-9\s-]/.test(raw)) {
+            return "Phone numbers can only contain digits, spaces, or hyphens";
+          }
+          if (digits.charAt(0) === "0") {
+            return "Enter the number without the leading 0";
+          }
+          if (/^(\d)\1+$/.test(digits)) {
+            return "Enter a valid phone number";
+          }
+          if (digits.length < 7) {
+            return "Phone number is too short";
+          }
+          if (digits.length > 15) {
+            return "Phone number is too long";
+          }
+          if (!isIndiaCodeSelected()) {
+            return null;
+          }
+          return null;
+        }
+
+        function runPhoneInputValidation() {
+          if (!phone || !wrapP || !phoneErr) return;
+          var msg = validatePhoneBlur(phone.value);
+          applyPhoneValidationResult(msg);
+        }
+
+        function scrollToTopmostVisibleContactError() {
+          var candidates = [];
+          if (fieldErrorIsVisible(emailErr)) candidates.push({ err: emailErr, el: emailBlock || email });
+          if (fieldErrorIsVisible(phoneErr)) candidates.push({ err: phoneErr, el: phoneBlock || phone });
+          if (!candidates.length) return;
+          candidates.sort(function (a, b) {
+            var aTop = a.el.getBoundingClientRect().top + window.scrollY;
+            var bTop = b.el.getBoundingClientRect().top + window.scrollY;
+            return aTop - bTop;
+          });
+          var target = candidates[0];
+          if (target.el && target.el.scrollIntoView) {
+            target.el.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
         }
 
         if (email && wrapE && emailErr) {
@@ -2206,7 +2253,6 @@
 
           email.addEventListener("input", function () {
             emailState.dirty = true;
-            if (!emailErrorIsVisible()) return;
             runEmailInputValidation();
           });
 
@@ -2214,7 +2260,7 @@
             var raw = email.value;
             var empty = !String(raw || "").trim();
             if (empty && !emailState.dirty) {
-              hideEmailErrorEl(emailErr);
+              hideFieldErrorEl(emailErr);
               wrapE.classList.remove("is-error");
               email.setAttribute("aria-invalid", "false");
               return;
@@ -2227,19 +2273,59 @@
           });
         }
 
-        if (btnNext && email && wrapE && emailErr) {
+        if (phone && wrapP && phoneErr) {
+          phone.addEventListener("focus", function () {
+            phoneState.touched = true;
+          });
+
+          phone.addEventListener("input", function () {
+            phoneState.dirty = true;
+            runPhoneInputValidation();
+          });
+
+          phone.addEventListener("blur", function () {
+            var raw = phone.value;
+            var empty = phoneDigitsOnly(raw).length === 0;
+            if (empty && !phoneState.dirty) {
+              hideFieldErrorEl(phoneErr);
+              wrapP.classList.remove("is-error");
+              phone.setAttribute("aria-invalid", "false");
+              return;
+            }
+            if (!phoneState.dirty && !phoneState.submitAttempted) {
+              return;
+            }
+            var msg = validatePhoneBlur(phone.value);
+            applyPhoneValidationResult(msg);
+          });
+        }
+
+        if (btnNext) {
           btnNext.addEventListener("click", function () {
-            emailState.touched = true;
-            emailState.dirty = true;
-            emailState.submitAttempted = true;
-            var raw = String(email.value || "");
-            var msg = !raw.trim() ? "Email address is required" : validateEmailBlur(email.value);
-            applyEmailValidationResult(msg);
-            if (msg) {
-              var scrollEl = emailBlock || email;
-              scrollEl.scrollIntoView({ block: "center", behavior: "smooth" });
+            if (email && wrapE && emailErr) {
+              emailState.touched = true;
+              emailState.dirty = true;
+              emailState.submitAttempted = true;
+              var emailMsg = validateEmailBlur(email.value);
+              applyEmailValidationResult(emailMsg);
+            }
+            if (phone && wrapP && phoneErr) {
+              phoneState.touched = true;
+              phoneState.dirty = true;
+              phoneState.submitAttempted = true;
+              var phoneMsg = validatePhoneBlur(phone.value);
+              applyPhoneValidationResult(phoneMsg);
+            }
+            if (fieldErrorIsVisible(emailErr) || fieldErrorIsVisible(phoneErr)) {
+              scrollToTopmostVisibleContactError();
               window.setTimeout(function () {
-                if (email.focus) email.focus({ preventScroll: true });
+                if (fieldErrorIsVisible(emailErr) && email && email.focus) {
+                  email.focus({ preventScroll: true });
+                  return;
+                }
+                if (fieldErrorIsVisible(phoneErr) && phone && phone.focus) {
+                  phone.focus({ preventScroll: true });
+                }
               }, 100);
             }
           });
@@ -2470,11 +2556,12 @@
 
         const NAME_MAX_COMBINED = 40;
         const nameMinLenErr = "Name must be at least 2 characters";
-        const nameCharsetErr = "Use only letters and spaces (A–Z, no special characters)";
+        const nameCharsetErr = "Use only letters from your passport (A–Z, hyphens and apostrophes)";
         const nameFullLenErr =
           "Enter as much of the name as fits. Airlines will automatically truncate the rest.";
-        /** Latin letters only; words may be separated by single spaces. */
-        const namePartRe = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+        /** Latin letters with optional apostrophes/hyphens between letter groups. */
+        const namePartRe = /^[A-Za-z]+(?:['-][A-Za-z]+)*$/;
+        const nameTypingErr = "Only alphabets are allowed";
 
         function combinedFullName(firstVal, lastVal) {
           const a = (firstVal || "").trim();
@@ -2485,7 +2572,7 @@
 
         function validateFirstName(firstVal, lastVal) {
           const v = (firstVal || "").trim();
-          if (!v) return "This field is required. If no first name type 'FNU'";
+          if (!v) return "This field is required";
           if (v.length < 2) return nameMinLenErr;
           if (!namePartRe.test(v)) return nameCharsetErr;
           if (combinedFullName(firstVal, lastVal).length > NAME_MAX_COMBINED) return nameFullLenErr;
@@ -2512,28 +2599,35 @@
             .slice(0, maxLen);
         }
 
-        function validateDob(input, type, selectedChildAge) {
+        function validateDob(input, type, selectedChildAge, opts) {
+          const mode = (opts && opts.mode) || "submit";
           const rawDigits = extractDateDigits(input, 8);
           const dd = rawDigits.slice(0, 2);
           const mm = rawDigits.slice(2, 4);
           const yyyy = rawDigits.slice(4, 8);
           const hasAny = rawDigits.length > 0;
           const isComplete = rawDigits.length === 8;
-          const isDirty = !!(input && input.dataset && input.dataset.dirty === "true");
-          const isTouched = !!(input && input.dataset && input.dataset.touched === "true");
+          if (mode === "typing") {
+            if (!isComplete) return null;
+            const dtTyping = parseDMYFromDisplay(dd + "/" + mm + "/" + yyyy);
+            if (!dtTyping) return "Enter a valid date";
+            const today = new Date();
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            if (dtTyping > todayStart) return "Date of birth cannot be in the future";
+            return null;
+          }
           if (!hasAny) return "This field is required";
-          if (!isComplete) return isDirty && isTouched ? "Please enter a complete date" : null;
+          if (!isComplete) return mode === "blur" ? null : "Please enter a complete date";
           const dt = parseDMYFromDisplay(dd + "/" + mm + "/" + yyyy);
-          if (!dt) return "Please enter a valid date";
+          if (!dt) return "Enter a valid date";
+          const today = new Date();
+          const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          if (dt > todayStart) return "Date of birth cannot be in the future";
           const age = ageOnDate(dt, TRAVEL_END);
           if (type === "adult") {
-            if (age < 18) return "Traveller must be 18 or older";
+            if (age < 12) return "Traveller must be 12 or older for an adult ticket";
           } else {
-            const selected = Number.parseInt(String(selectedChildAge || ""), 10);
-            if (!Number.isNaN(selected) && age !== selected) {
-              return "__CHILD_AGE_MISMATCH__:" + String(age) + ":" + String(selected);
-            }
-            if (Number.isNaN(selected) && (age < 9 || age > 11)) {
+            if (age > 11) {
               return "Date of birth doesn't match the child's age entered at search";
             }
           }
@@ -2542,25 +2636,44 @@
 
         function validateDoc(v) {
           const s = (v || "").trim();
-          if (!s) return "This field is required";
-          if (!/^[A-Za-z0-9]{6,9}$/.test(s)) return "Enter a valid passport number (6–9 characters)";
+          if (!s) return "Travel document number is required";
+          if (/[^A-Za-z0-9]/.test(s)) return "Passport numbers cannot contain spaces or special characters";
+          if (s.length < 6 || s.length > 9) return "Enter a valid passport number (6–9 characters)";
+          return null;
+        }
+
+        function validateCountry(v) {
+          const s = String(v || "").trim();
+          if (!s) return "Select a country of issue";
           return null;
         }
 
         function validateExpiry(input, opts) {
+          const mode = (opts && opts.mode) || "submit";
           const rawDigits = extractDateDigits(input, 6);
           const mm = rawDigits.slice(0, 2);
           const yyyy = rawDigits.slice(2, 6);
           const hasAny = rawDigits.length > 0;
           const isComplete = rawDigits.length === 6;
-          const isDirty = !!(input && input.dataset && input.dataset.dirty === "true");
-          const isTouched = !!(input && input.dataset && input.dataset.touched === "true");
+          if (mode === "typing") {
+            if (rawDigits.length >= 2) {
+              const monthNum = Number.parseInt(mm, 10);
+              if (monthNum === 0) return "Month cannot be 00";
+              if (monthNum > 12) return "Enter a valid month between 01 and 12";
+            }
+            if (!isComplete) return null;
+          }
           if (!hasAny) return "This field is required";
-          if (!isComplete) return isDirty && isTouched ? "Please enter a complete date" : null;
+          if (!isComplete) return "Enter a valid date";
+          const monthNum = Number.parseInt(mm, 10);
+          if (monthNum === 0 || monthNum > 12) return "Enter a valid month between 01 and 12";
           const dt = parseMY(mm + "/" + yyyy);
-          if (!dt) return "Please enter a valid date";
+          if (!dt) return "Enter a valid date";
           const lastDay = endOfExpiryMonth(dt);
-          if (lastDay < TRAVEL_END) return "Your passport expires before your travel date";
+          const today = new Date();
+          const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          if (lastDay < todayStart) return "Passport has already expired";
+          if (lastDay < TRAVEL_END) return "Passport expires before your travel date (1 May 2026)";
           return null;
         }
 
@@ -2952,7 +3065,7 @@
               '<div class="ff-country-wrap">' +
                 '<input class="ff-float__input" id="' +
                 prefix +
-                '-country-input" type="text" role="combobox" aria-expanded="false" aria-haspopup="listbox" ' +
+                '-country-input" type="text" role="combobox" aria-expanded="false" aria-haspopup="listbox" readonly ' +
                 'aria-controls="' +
                 prefix +
                 '-country-list" autocomplete="off" value="India" />' +
@@ -2960,7 +3073,10 @@
                 prefix +
                 '-country-list" role="listbox" hidden></div></div>'
             ) +
-            '<p class="ds-hint">Country of your passport</p></div>' +
+            '<p class="ds-hint">Country of your passport</p>' +
+            '<div class="ds-field-error ff-error" id="' +
+            prefix +
+            '-country-err" hidden></div></div>' +
             '<div class="ff-field">' +
             floatShell(
               prefix + "-exp",
@@ -3021,9 +3137,19 @@
           const input = card.querySelector("#" + prefix + "-country-input");
           const panel = card.querySelector("#" + prefix + "-country-list");
           if (!input || !panel) return;
+          const errEl = card.querySelector("#" + prefix + "-country-err");
+          let searchInput = null;
 
           function renderList(filter) {
+            const existingSearch = searchInput ? String(searchInput.value || "") : "";
             panel.innerHTML = "";
+            searchInput = document.createElement("input");
+            searchInput.type = "text";
+            searchInput.className = "ff-float__input";
+            searchInput.placeholder = "Search country";
+            searchInput.autocomplete = "off";
+            searchInput.value = existingSearch;
+            panel.appendChild(searchInput);
             const q = (filter || "").toLowerCase();
             COUNTRIES.filter((c) => c.toLowerCase().includes(q)).forEach((country) => {
               const btn = document.createElement("button");
@@ -3035,8 +3161,17 @@
                 panel.classList.remove("is-open");
                 panel.hidden = true;
                 input.setAttribute("aria-expanded", "false");
+                if (errEl) {
+                  hideError(errEl);
+                  const shell = input.closest(".ff-float__inner");
+                  if (shell) shell.classList.remove("is-error");
+                }
               });
               panel.appendChild(btn);
+            });
+            searchInput.addEventListener("input", function () {
+              renderList(searchInput.value);
+              openPanel();
             });
           }
 
@@ -3048,17 +3183,12 @@
 
           input.addEventListener("focus", function () {
             openPanel();
-            renderList(input.value);
+            renderList("");
           });
 
           input.addEventListener("click", function () {
             openPanel();
-            renderList(input.value);
-          });
-
-          input.addEventListener("input", function () {
-            openPanel();
-            renderList(input.value);
+            renderList("");
           });
 
           document.addEventListener("click", function (e) {
@@ -3117,6 +3247,7 @@
           const genderSelect = form.querySelector("#" + prefix + "-gender");
           const dob = form.querySelector("#" + prefix + "-dob");
           const doc = form.querySelector("#" + prefix + "-doc");
+          const countryInput = form.querySelector("#" + prefix + "-country-input");
           const exp = form.querySelector("#" + prefix + "-exp");
           const ffAdd = form.querySelector("#" + prefix + "-ff-add");
           const ffExtra = form.querySelector("#" + prefix + "-ff-extra");
@@ -3130,6 +3261,7 @@
             gender: form.querySelector("#" + prefix + "-gender-err"),
             dob: form.querySelector("#" + prefix + "-dob-err"),
             doc: form.querySelector("#" + prefix + "-doc-err"),
+            country: form.querySelector("#" + prefix + "-country-err"),
             exp: form.querySelector("#" + prefix + "-exp-err"),
             ffAirline: form.querySelector("#" + prefix + "-ff-airline-err"),
             ffNumber: form.querySelector("#" + prefix + "-ff-number-err"),
@@ -3141,6 +3273,7 @@
             gender: { touched: false, dirty: false },
             dob: { touched: false, dirty: false },
             doc: { touched: false, dirty: false },
+            country: { touched: false, dirty: false },
             exp: { touched: false, dirty: false },
             ffAirline: { touched: false, dirty: false },
             ffNumber: { touched: false, dirty: false },
@@ -3160,6 +3293,7 @@
             fieldState.gender.touched = fieldState.gender.dirty = false;
             fieldState.dob.touched = fieldState.dob.dirty = false;
             fieldState.doc.touched = fieldState.doc.dirty = false;
+            fieldState.country.touched = fieldState.country.dirty = false;
             fieldState.exp.touched = fieldState.exp.dirty = false;
             fieldState.ffAirline.touched = fieldState.ffAirline.dirty = false;
             fieldState.ffNumber.touched = fieldState.ffNumber.dirty = false;
@@ -3172,6 +3306,7 @@
             hideError(err.gender);
             hideError(err.dob);
             hideError(err.doc);
+            hideError(err.country);
             hideError(err.exp);
             hideError(err.ffAirline);
             hideError(err.ffNumber);
@@ -3180,6 +3315,7 @@
             setShellError(genderSelect, false);
             setShellError(dob, false);
             setShellError(doc, false);
+            setShellError(countryInput, false);
             setShellError(exp, false);
             setShellError(ffAirline, false);
             setShellError(ffNumber, false);
@@ -3434,12 +3570,11 @@
             return false;
           }
 
-          /** Airlines-style names: letters/spaces only, always rendered uppercase. */
+          /** Airlines-style names: always rendered uppercase. */
           function applyNameUppercase(input) {
             if (!input) return;
             const v = String(input.value || "");
-            const sanitized = v.replace(/[^A-Za-z ]+/g, "").replace(/\s{2,}/g, " ");
-            const upper = sanitized.toUpperCase();
+            const upper = v.toUpperCase();
             if (v === upper) return;
             const start = input.selectionStart;
             const end = input.selectionEnd;
@@ -3474,17 +3609,12 @@
             applyNameUppercase(first);
             fieldState.first.dirty = true;
             const fv = (first.value || "").trim();
-            if (fv.length > 0 && !namePartRe.test(fv)) {
-              showError(err.first, nameCharsetErr);
+            if (fv.length >= 2 && /[^A-Za-z'-]/.test(fv)) {
+              showError(err.first, nameTypingErr);
               setShellError(first, true);
               return;
             }
-            if (!errorIsVisible(err.first)) return;
-            const msg = validateFirstName(first.value, last.value);
-            if (msg) {
-              showError(err.first, msg);
-              setShellError(first, true);
-            } else {
+            if (errorIsVisible(err.first)) {
               hideError(err.first);
               setShellError(first, false);
             }
@@ -3492,6 +3622,7 @@
 
           first.addEventListener("blur", function () {
             applyNameUppercase(first);
+            first.value = String(first.value || "").replace(/[^A-Z'-]+/g, "");
             blurTextField(first, fieldState.first, err.first, function () {
               return validateFirstName(first.value, last.value);
             });
@@ -3502,17 +3633,12 @@
             applyNameUppercase(last);
             fieldState.last.dirty = true;
             const lv = (last.value || "").trim();
-            if (lv.length > 0 && !namePartRe.test(lv)) {
-              showError(err.last, nameCharsetErr);
+            if (lv.length >= 2 && /[^A-Za-z'-]/.test(lv)) {
+              showError(err.last, nameTypingErr);
               setShellError(last, true);
               return;
             }
-            if (!errorIsVisible(err.last)) return;
-            const msg = validateLastName(first.value, last.value);
-            if (msg) {
-              showError(err.last, msg);
-              setShellError(last, true);
-            } else {
+            if (errorIsVisible(err.last)) {
               hideError(err.last);
               setShellError(last, false);
             }
@@ -3520,6 +3646,7 @@
 
           last.addEventListener("blur", function () {
             applyNameUppercase(last);
+            last.value = String(last.value || "").replace(/[^A-Z'-]+/g, "");
             blurTextField(last, fieldState.last, err.last, function () {
               return validateLastName(first.value, last.value);
             });
@@ -3529,8 +3656,22 @@
             if (suppressInteractionTracking) return;
             fieldState.dob.dirty = true;
             dob.dataset.dirty = "true";
-            if (!errorIsVisible(err.dob)) return;
-            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+            const msg = validateDob(dob, type, selectedChildAge, { mode: "typing" });
+            if (msg) {
+              showError(err.dob, msg);
+              setShellError(dob, true);
+              return;
+            }
+            if (errorIsVisible(err.dob)) {
+              const blurMsg = validateDob(dob, type, selectedChildAge, { mode: "blur" });
+              if (blurMsg) {
+                showError(err.dob, blurMsg);
+                setShellError(dob, true);
+              } else {
+                hideError(err.dob);
+                setShellError(dob, false);
+              }
+            }
           });
 
           dob.addEventListener("blur", function () {
@@ -3542,7 +3683,14 @@
               setShellError(dob, false);
               return;
             }
-            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+            const msg = validateDob(dob, type, selectedChildAge, { mode: "blur" });
+            if (msg) {
+              showError(err.dob, msg);
+              setShellError(dob, true);
+            } else {
+              hideError(err.dob);
+              setShellError(dob, false);
+            }
           });
 
           doc.addEventListener("input", function () {
@@ -3550,13 +3698,9 @@
             fieldState.doc.dirty = true;
             if (!errorIsVisible(err.doc)) return;
             const msg = validateDoc(doc.value);
-            if (msg) {
-              showError(err.doc, msg);
-              setShellError(doc, true);
-            } else {
-              hideError(err.doc);
-              setShellError(doc, false);
-            }
+            if (msg) showError(err.doc, msg);
+            else hideError(err.doc);
+            setShellError(doc, !!msg);
           });
 
           doc.addEventListener("blur", function () {
@@ -3565,12 +3709,25 @@
             });
           });
 
+          if (countryInput) {
+            countryInput.addEventListener("blur", function () {
+              fieldState.country.touched = true;
+              const msg = validateCountry(countryInput.value);
+              if (msg) {
+                showError(err.country, msg);
+                setShellError(countryInput, true);
+              } else {
+                hideError(err.country);
+                setShellError(countryInput, false);
+              }
+            });
+          }
+
           exp.addEventListener("input", function () {
             if (suppressInteractionTracking) return;
             fieldState.exp.dirty = true;
             exp.dataset.dirty = "true";
-            if (!errorIsVisible(err.exp)) return;
-            const msg = validateExpiry(exp);
+            const msg = validateExpiry(exp, { mode: "typing" });
             if (msg) {
               showError(err.exp, msg);
               setShellError(exp, true);
@@ -3583,16 +3740,23 @@
           exp.addEventListener("blur", function () {
             exp.dataset.touched = "true";
             blurTextField(exp, fieldState.exp, err.exp, function () {
-              return validateExpiry(exp, { fromBlur: true });
+              return validateExpiry(exp, { mode: "blur" });
             });
           });
 
           dob.addEventListener("validate", function () {
-            applyDobValidationResult(validateDob(dob, type, selectedChildAge));
+            const msg = validateDob(dob, type, selectedChildAge, { mode: "submit" });
+            if (msg) {
+              showError(err.dob, msg);
+              setShellError(dob, true);
+            } else {
+              hideError(err.dob);
+              setShellError(dob, false);
+            }
           });
 
           exp.addEventListener("validate", function () {
-            const msg = validateExpiry(exp);
+            const msg = validateExpiry(exp, { mode: "submit" });
             if (msg) {
               showError(err.exp, msg);
               setShellError(exp, true);
@@ -3609,6 +3773,7 @@
               { err: err.gender, focusEl: genderSelect },
               { err: err.dob, focusEl: dob },
               { err: err.doc, focusEl: doc },
+              { err: err.country, focusEl: countryInput },
               { err: err.exp, focusEl: exp },
               { err: err.ffAirline, focusEl: ffAirline },
               { err: err.ffNumber, focusEl: ffNumber },
@@ -3633,6 +3798,7 @@
             fieldState.gender.touched = fieldState.gender.dirty = false;
             fieldState.dob.touched = fieldState.dob.dirty = false;
             fieldState.doc.touched = fieldState.doc.dirty = false;
+            fieldState.country.touched = fieldState.country.dirty = false;
             fieldState.exp.touched = fieldState.exp.dirty = false;
             fieldState.ffAirline.touched = fieldState.ffAirline.dirty = false;
             fieldState.ffNumber.touched = fieldState.ffNumber.dirty = false;
@@ -3658,10 +3824,9 @@
             let bad = false;
 
             const emptyMsg = "This field is required";
-            const emptyFirstMsg = "This field is required. If no first name type 'FNU'";
 
             const rawFirst = (first.value || "").trim();
-            const vFirst = rawFirst ? validateFirstName(first.value, last.value) : emptyFirstMsg;
+            const vFirst = rawFirst ? validateFirstName(first.value, last.value) : emptyMsg;
             if (vFirst) {
               showError(err.first, vFirst);
               setShellError(first, true);
@@ -3693,11 +3858,18 @@
               if (genderSelect) setShellError(genderSelect, false);
             }
 
-            const vDob = validateDob(dob, type, selectedChildAge);
-            if (applyDobValidationResult(vDob)) bad = true;
+            const vDob = validateDob(dob, type, selectedChildAge, { mode: "submit" });
+            if (vDob) {
+              showError(err.dob, vDob);
+              setShellError(dob, true);
+              bad = true;
+            } else {
+              hideError(err.dob);
+              setShellError(dob, false);
+            }
 
             const rawDoc = (doc.value || "").trim();
-            const vDoc = rawDoc ? validateDoc(doc.value) : emptyMsg;
+            const vDoc = validateDoc(rawDoc);
             if (vDoc) {
               showError(err.doc, vDoc);
               setShellError(doc, true);
@@ -3707,7 +3879,18 @@
               setShellError(doc, false);
             }
 
-            const vExp = validateExpiry(exp);
+            const rawCountry = (countryInput && countryInput.value) || "";
+            const vCountry = validateCountry(rawCountry);
+            if (vCountry) {
+              showError(err.country, vCountry);
+              setShellError(countryInput, true);
+              bad = true;
+            } else {
+              hideError(err.country);
+              setShellError(countryInput, false);
+            }
+
+            const vExp = validateExpiry(exp, { mode: "submit" });
             if (vExp) {
               showError(err.exp, vExp);
               setShellError(exp, true);
