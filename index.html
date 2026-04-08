@@ -2215,6 +2215,9 @@
           if (digits.length < 7) {
             return "Phone number is too short";
           }
+          if (isIndiaCodeSelected() && digits.length > 10) {
+            return "Phone number for +91 cannot exceed 10 digits";
+          }
           if (digits.length > 15) {
             return "Phone number is too long";
           }
